@@ -23,7 +23,7 @@ Gem::Specification.new do |spec|
   end
 
   #spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
-  spec.files         = Dir['{lib}/**/*.rb', '{lib}/**/errors/*', '{lib}/**/connect/*']
+  spec.files         = Dir['{lib}/*.rb', '{lib}/*/*.rb', '{lib}/**/errors/*', '{lib}/**/connect/*']
   #spec.bindir        = "bin"
   #spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.test_files	 = spec.files.grep(%r{^(test|spec|features)/})
