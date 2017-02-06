@@ -8,5 +8,4 @@
 /spec/reports/
 /tmp/
 /lib/**/.yardoc/
-/lib/**/test/
 /lib/**/unimplement/
