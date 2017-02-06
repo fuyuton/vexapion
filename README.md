@@ -1,6 +1,11 @@
 # Vexapion
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/vexapion`. To experiment with that code, run `bin/console` for an interactive prompt.
+Vexapionは、仮想(暗号)通貨取引所のAPIを簡単に使えるようにしたAPIラッパーです。
+
+現在ほぼ問題なく利用可能なのはZaifのみです。
+
+Bitflyer, Coincheck, Poloniexも一応利用可能ですが、あまりテストされていません。
+
 
 ## Installation
 
@@ -22,7 +27,11 @@ Or install it yourself as:
 
 例:zaifの場合
 
-まず、クラスの初期化をします。
+クラスファイルを読み込みます。
+
+require 'vexapion/zaif'
+
+クラスの初期化をします。
 
 zapi = Vexapion::API::Zaif.new(API鍵, 秘密鍵)
 
