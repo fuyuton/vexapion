@@ -1,3 +1,5 @@
+# coding: utf-8
+
 module Vexapion
 
 	# Virtual (crypto) Currency Exchanges API wrapper class

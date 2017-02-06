@@ -1,3 +1,5 @@
+# coding: utf-8
+
 # based off of quandl gem: https://github.com/quandl/quandl-ruby
 
 module Vexapion

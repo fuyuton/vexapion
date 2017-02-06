@@ -1,3 +1,5 @@
+# coding: utf-8
+
 # Zaif Exchange API Ver 1.05.02 対応版
 # 2017/1/21現在
 
