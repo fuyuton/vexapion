@@ -33,7 +33,7 @@ require 'vexapion/zaif'
 
 クラスの初期化をします。
 
-zapi = Vexapion::API::Zaif.new(API鍵, 秘密鍵)
+zapi = Vexapion::Zaif.new(API鍵, 秘密鍵)
 
 扱いたいペアを指定します
 
@@ -81,19 +81,19 @@ Vexapionでは、その際のHTTPステータスなどを使っていくつか�
 
 大まかに分けて6つの例外があります。
 
-Vexapion::API::RequestFailed は、APIリクエストが失敗したことが明らかな場合に発生します。
+Vexapion::RequestFailed は、APIリクエストが失敗したことが明らかな場合に発生します。
 
-Vexapion::API::SocketError は、HTTPでの接続が出来ないときに発生します。
+Vexapion::SocketError は、HTTPでの接続が出来ないときに発生します。
 
-Vexapion::API::RetryException は、サーバー側にエラーが発生し、リクエストが通ったかどうか定かでない状態になったときに発生します。
+Vexapion::RetryException は、サーバー側にエラーが発生し、リクエストが通ったかどうか定かでない状態になったときに発生します。
 
 当初Vexapion側で自動的に再接続処理をする予定で付けていた名残でこの名前になっています。将来的に変更される可能性があります。
 
-Vexapion::API::Warning は、場合によってはアプリ側で無視出来るかもしれないエラーになります。
+Vexapion::Warning は、場合によってはアプリ側で無視出来るかもしれないエラーになります。
 
-Vexapion::API::Error は、アプリ側で修正が必要なエラーになります。
+Vexapion::Error は、アプリ側で修正が必要なエラーになります。
 
-Vexapion::API::Fatal は、Vexapion自体の修正が必要なエラーになると思います。
+Vexapion::Fatal は、Vexapion自体の修正が必要なエラーになると思います。
 
 ## Development
 
