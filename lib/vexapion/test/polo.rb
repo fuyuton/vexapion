@@ -1,10 +1,11 @@
 require 'vexapion/poloniex'
 require 'yaml'
 
-key_file = "\~/.key/test/polo.yml"
+home_dir = "/home/fuyuton"
+key_file = "#{home_dir}/.key/test/polo.yml"
 file = File.read(key_file)
 key = YAML.load(file)
-api = Vexapion::API::Poloniex.new(key['access-key'], key['secret-key'])
+api = Vexapion::Poloniex.new(key['access-key'], key['secret-key'])
 pair = 'ltc_usdt'
 
 public = false

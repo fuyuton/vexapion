@@ -5,12 +5,13 @@ public = true
 priv = false
 
 pair = 'btc_jpy'
-key_file = "\~/.key/test/cc.yml"
+home_dir = "/home/fuyuton"
+key_file = "#{home_dir}/.key/test/cc.yml"
 #key_file = '/home/fuyuton/src/wcci/trade/coincheck/coincheck.yml'
 keydata = File.read(key_file)
 key = YAML.load(keydata)
 
-api = Vexapion::API::Coincheck.new(key['access-key'], key['secret-key'])
+api = Vexapion::Coincheck.new(key['access-key'], key['secret-key'])
 begin
 
 if public == true

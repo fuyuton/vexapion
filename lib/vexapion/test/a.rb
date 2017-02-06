@@ -1,4 +1,4 @@
-require 'vexapion/zaif'
+require 'vexapion'
 require 'yaml'
 
 local = true
@@ -7,7 +7,7 @@ priv = false
 
 pair = 'btc_jpy'
 
-home_dir = '/home/fuyuton'
+home_dir = "/home/fuyuton"
 key_file = "#{home_dir}/.key/test/zaif.yml"
 key = YAML.load( File.read(key_file) )
 api = Vexapion::Zaif.new(key['access-key'], key['secret-key'])

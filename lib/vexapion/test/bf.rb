@@ -4,12 +4,13 @@ require 'yaml'
 pair1 = 'btc_jpy'
 pair2 = 'btc_jpy'
 
-key_file = "\~/.key/test/bf.yml"
+home_dir = "/home/fuyuton"
+key_file = "#{home_dir}/.key/test/bf.yml"
 file = File.read(key_file)
 key = YAML.load(file)
 
-api = Vexapion::API::Bitflyer.new(key['access-key'], key['secret-key'])
-#api = Vexapion::API::Bitflyer.new
+api = Vexapion::Bitflyer.new(key['access-key'], key['secret-key'])
+#api = Vexapion::Bitflyer.new
 
 public = false
 priv = false
