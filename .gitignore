@@ -7,5 +7,6 @@
 /doc/
 /spec/reports/
 /tmp/
-/test/
-/unimplement/
+/lib/**/.yardoc/
+/lib/**/test/
+/lib/**/unimplement/
