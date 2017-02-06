@@ -1,5 +1,5 @@
 /.bundle/
-/.yardoc
+/.yardoc/
 /Gemfile.lock
 /_yardoc/
 /coverage/
@@ -7,3 +7,5 @@
 /doc/
 /spec/reports/
 /tmp/
+/test/
+/unimplement/
