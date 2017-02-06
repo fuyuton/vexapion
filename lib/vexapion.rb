@@ -8,7 +8,7 @@ require 'bigdecimal'
 require 'vexapion/version'
 require 'vexapion/errors/vexapion_errors'
 require 'vexapion/errors/http_errors'
-require 'vexapion/http_client'
-require 'vexapion/base_exchanger'
+require 'vexapion/connect/http_client'
+require 'vexapion/base_exchanges'
 
 Net::HTTP.version_1_2

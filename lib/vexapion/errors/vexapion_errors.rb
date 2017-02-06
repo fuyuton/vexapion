@@ -11,18 +11,17 @@
 
 module Vexapion
 	module API
+
 		class VexapionRuntimeError < StandardError
 			attr_reader :success
 			attr_reader :error_message
 			attr_reader :response
 
-			# rubocop:disable Metrics/ParameterLists
 			def initialize(i_success = nil, i_msg = nil, i_response = nil)
 				@success = i_success
 				@message = i_msg
 				@response = i_response
 			end
-			# rubocop:enable Metrics/ParameterLists
 
 			 def to_s
 				 "#{@error_message}: #{@response}"
@@ -30,7 +29,7 @@ module Vexapion
 		end
 
 		#Error Response
-		class RequestFailedError < VexapionRuntimeError
+		class RequestFailed < VexapionRuntimeError
 		end
 
 		#Socket Error

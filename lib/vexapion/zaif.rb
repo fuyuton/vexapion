@@ -10,7 +10,7 @@ module Vexapion
 		# 各メソッドの戻り値は下記URLを参照してください。
 		# @see https://corp.zaif.jp/api-docs/
 
-		class Zaif < BaseExchanger
+		class Zaif < BaseExchanges
 
 			def initialize(key = nil, secret = nil)
 				super(key,secret)
@@ -19,9 +19,10 @@ module Vexapion
 				@private_url = 'https://api.zaif.jp/tapi'
 			end
 
-
 			def available_pair
-				return ['btc_jpy', 'xem_jpy', 'xem_btc', 'mona_jpy', 'mona_btc']
+				#balanceから取れるかもしれない
+				['btc_jpy', 'xem_jpy', 'xem_btc',
+					'mona_jpy', 'mona_btc', 'zaif_jpy', 'zaif_btc']
 			end
 
 ###########################################################################
@@ -29,18 +30,18 @@ module Vexapion
 # Public API
 #
 ###########################################################################
-			# @tag [type] <name> <desc>
 
-			# @raise ResponseError
-			# @raise VexapionWarning
-			# @raise VexapionError
-			# @raise VexapionFatal
+			# @raise RequestFailed APIリクエストの失敗
+			# @raise SocketError ソケットエラー
+			# @raise RetryException	リクエストの結果が確認できないとき 408, 500, 503
+			# @raise Warning 何かがおかしいと時(200 && response.body == nil), 509
+			# @raise Error  クライアントエラー 400, 401, 403
+			# @raise Fatal APIラッパーの修正が必要と思われるエラー, 404
 
 
-			# 終値を得る
+			# 終値
 			# @param [String] pair 取得したい通貨ペア
 			# @return [Hash]
-			#		"last_price"
 			def last_price(pair)
 				get('last_price', pair)
 			end
@@ -48,28 +49,13 @@ module Vexapion
 			# ティッカー
 			# @param [String] pair 取得したい通貨ペア
 			# @return [Hash]
-			#		"last"		終値
-			#		"high"		過去24時間の高値
-			#		"low"			過去24時間の安値
-			#		"vwap"		過去24時間の加重平均
-			#		"volume"	過去24時間の出来高
-			#		"bid"			買気配値
-			#		"ask"			売気配値
 			def ticker(pair)
 				get('ticker', pair)
 			end
 
-			# すべての取引履歴
+			# 取引履歴
 			# @param [String] pair 取得したい通貨ペア
 			# @return [Array]
-			#		{
-			#			"date"						#UNIX時間
-			# 		"price"						#売買された金額
-			#			"amount"					#売買された数量
-			#			"tid"							#トレードID?
-			#			"currency_pair"		#通貨ペア
-			#			"trade_type"			#ask/bid
-			#		}, ...
 			def trades(pair)
 				get('trades', pair)
 			end
@@ -77,8 +63,6 @@ module Vexapion
 			# 板情報
 			# @param [String] pair 取得したい通貨ペア
 			# @return [Hash]
-			#			"asks": [[price, amount], ...],
-			#			"bids": [[price, amount], ...]
 			def depth(pair)
 				get('depth', pair)
 			end
@@ -92,28 +76,13 @@ module Vexapion
 			# 現在の残高(余力および残高・トークン)、APIキーの権限、過去のトレード数
 			# アクティブな注文数、サーバーのタイムスタンプを取得します
 			# @return [Hash]
-			#		"success"						0/1
-			#		"return" [Hash]
-			#			"funds": {"jpy": 10000, "btc": 0.1, "xem": 100.2, "kaori": 0.1}
-			#			"deposit": {"jpy": 10000, "btc": 0.1, "xem": 100.2, "kaori": 0.1}
-			#			"rights": {"info", 1, "trade": 1, "withdraw": 0, "personal_info": 0}
-			#		"trade_count"
-			#		"open_orders"
-			#		"server_time"
 			def get_info
 				post('get_info')
 			end
 
-			# 現在の残高(余力および残高・トークン)、APIキーの権限、過去のトレード数
+			# 現在の残高(余力および残高・トークン)、APIキーの権限、
 			# アクティブな注文数、サーバーのタイムスタンプを取得します
 			# @return [Hash]
-			#		"success"
-			#		"return" [Hash]
-			#			"funds": {"jpy": 10000, "btc": 0.1, "xem": 100.2, "kaori": 0.1}
-			#			"deposit": {"jpy": 10000, "btc": 0.1, "xem": 100.2, "kaori": 0.1}
-			#			"rights": {"info", 1, "trade": 1, "withdraw": 0, "personal_info": 0}
-			#		"open_orders"
-			#		"server_time"
 			def get_info2
 				post('get_info2')
 			end
@@ -269,7 +238,7 @@ module Vexapion
 #
 ###########################################################################
 		  private 
-
+			
 			def get(method, pair)
 			  url = "#{@public_url}#{method.downcase}/#{pair.downcase}"
 				uri = URI.parse url
@@ -289,12 +258,7 @@ module Vexapion
 				request['Sign'] = signature(request)
 
 				res = do_command(uri, request)
-				if res['success'].to_i != 1 && res.has_key?('error')
-					#通信は成功した。だがリクエストは失敗した。
-					fail RequestFailedError.new(
-						res['success'], res['error'], res)
-					raise
-				end
+				error_check(res)
 				res
 			end
 

@@ -7,27 +7,26 @@
 # ver 1.0
 #
 
-#注意事項
-#Private APIの呼び出し回数制限: 1分間に約200回
-#IPアドレスごとに1分間に約500回
-#
-#1日の平均約定単価が0.01未満の場合、翌日のPrivate API呼び出しが1分間に
-#約10回まで制限されることがあります。
-
-#https://lightning.bitflyer.jp/docs?lang=ja&_ga=1.33238398.170149243.1463313992
 
 
 require 'vexapion'
 
 module Vexapion
   module API
+		
+		# bitflyerのAPIラッパークラスです
+		# 各メソッドの戻り値は下記URLを参照してください
+		# @see https://lightning.bitflyer.jp/docs?lang=ja&_ga=1.264432847.170149243.1463313992
 
-		class Bitflyer < BaseExchanger
+		class Bitflyer < BaseExchanges
+			
 			def initialize(key = nil, secret = nil)
 				super(key, secret)
 
 				@public_url = 'https://api.bitflyer.jp/v1/'
 				@private_url = 'https://api.bitflyer.jp/v1/me/'
+
+				set_min_interval(0.3)
 
 				@available_pair = ['BTC_JPY', 'FX_BTC_JPY', 'ETH_BTC']
 			end
@@ -327,18 +326,19 @@ module Vexapion
 			private 
 			
 			def public_get(command, query={})
-				uri = URI.parse @public_url + command
+				uri = URI.parse "#{@public_url}#{command}"
+				uri.query = URI.encode_www_form(query)
 				request = Net::HTTP::Get.new(uri.request_uri)
-				#request.set_form_data(query) #クエリをURLエンコード(p1=v1&p2=v2...)
+				request.set_form_data(query) #クエリをURLエンコード(p1=v1&p2=v2...)
 
 				do_command(uri, request)
 			end
 
 			def get(command, query={})
 				method = 'GET'
-				uri = URI.parse @private_url + command
+				uri = URI.parse "#{@private_url}#{command}"
 				timestamp = get_nonce.to_s
-				text = timestamp + method + uri.request_uri
+				text = "#{timestamp}#{method}#{uri.request_uri}"
 				sign = signature(text)
 				header = {
 					'ACCESS-KEY'				=>	@key,
@@ -347,39 +347,23 @@ module Vexapion
 				}
 
 				request = Net::HTTP::Get.new(uri.request_uri, initheader = header)
-				request.set_form_data(query) #クエリをURLエンコード(p1=v1&p2=v2...)
 
 				do_command(uri, request)
 			end
 
 			def post(command, body={})
 				method = 'POST'
-				uri = URI.parse @private_url + command
+				uri = URI.parse "#{@private_url}#{command}"
 				timestamp = get_nonce.to_s
-				path = uri.path
 
-				text = timestamp + method + uri.request_uri
+				text = "#{timestamp}#{method}#{uri.request_uri}#{body}"
 				sign = signature(text)
-				header = headers(signature(text), timestamp)
+				header = headers(sign, timestamp)
 				request = Net::HTTP::Post.new(uri.request_uri, initheader = header)
+				request.body = body
 
 				do_command(uri, request)
 			end
-
-			#def do_command(uri, request)
-			#	response = nil
-			#	begin
-			#		response = @conn.http_request(uri,request)
-			#	rescue Error => e
-			#		#handle_api_error(e.response)
-					#raise e
-			#		raise
-			#	end
-
-			#	response.nil? ? nil : JSON.parse(response)
-			#end
-
-				
 
 			def signature(data)
 				algo = OpenSSL::Digest.new('sha256')
@@ -394,10 +378,6 @@ module Vexapion
 					'Content-Type'			=>	'application/json'
 				}
 			end
-
-			#def get_nonce
-			#	@nonce += 1
-			#end
 
 		end #of class
 	end #of module

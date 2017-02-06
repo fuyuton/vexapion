@@ -11,16 +11,15 @@
 
 module Vexapion
 	module API
+
 		class HTTPError < StandardError
 			attr_reader :http_status_code
 			attr_reader :message
 
-			# rubocop:disable Metrics/ParameterLists
 			def initialize(code = nil, msg = nil)
 				@http_status_code = code
 				@message = msg
 			end
-			# rubocop:enable Metrics/ParameterLists
 
 			 def to_s
 				 "#{@http_status_code}: #{@message}"
@@ -43,6 +42,10 @@ module Vexapion
 		class Fatal < HTTPError
 		end
 
+
+		#408 Request Timeout
+		class RequestTimeout < RetryException
+		end
 
 		#500
 		class InternalServerError < RetryException
@@ -73,7 +76,7 @@ module Vexapion
 		end
 
 		#404
-		class NotFoundError < Error
+		class NotFoundError < Fatal
 		end
 
 	end #of API module

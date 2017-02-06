@@ -12,7 +12,7 @@ require 'vexapion'
 module Vexapion
   module API
 
-		class Poloniex < BaseExchanger
+		class Poloniex < BaseExchanges
 			def initialize(key = nil, secret = nil)
 				super(key, secret)
 				
@@ -61,8 +61,8 @@ module Vexapion
 				post('returnBalances')
 			end
 
-			def complete_balances
-				post('returnCompleteBalances', account: 'all')
+			def complete_balances(account='all')
+				post('returnCompleteBalances', account: account)
 			end
 
 			def open_orders(pair)
