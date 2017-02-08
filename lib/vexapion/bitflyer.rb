@@ -24,20 +24,25 @@ module Vexapion
 # Public API
 		#板情報
 		def board(pair)
-			public_get('board', product_code: pair)
+			public_get('board', product_code: pair.upcase)
 		end
 		alias get_board board
 
 		#Ticker
 		def ticker(pair)
-			public_get('ticker', product_code: pair)
+			public_get('ticker', product_code: pair.upcase)
 		end
 		alias get_ticker ticker
 
 		#約定履歴
-		def executions(pair, count=100, before=0, after=0)
-			public_get('executions', product_code: pair,
-				count: count, before: before, after: after)
+		def executions(pair, count='', before='', after='')
+			params = {
+			  product_code: pair.upcase
+			}
+			params[:count]  = count  if count  != ''
+			params[:before] = before if before != ''
+			params[:after]  = after  if after  != ''
+			public_get('executions', params)
 		end
 		#get_executionsは個人の約定履歴の取得に使っているので混同しないこと
 		alias get_public_executions executions
@@ -74,37 +79,46 @@ module Vexapion
 		end
 		
 	#BTC/ETH預入履歴
-		def get_coin_ins(count=100, before=0, after=0)
-			get('getcoinins', count: count, before: before, after: after)
+		def get_coin_ins(count='', before='', after='')
+		  params = Hash.new
+			params[:count]  = count  if count  != ''
+			params[:before] = before if before != ''
+			params[:after]  = after  if after  != ''
+			get('getcoinins', params)
 		end
 
 		#BTC/ETH外部送付
-		def sendcoin(currency, amount, address, fee=0.0, code='')
+		def sendcoin(currency, amount, address, fee='', code='')
 			params = {
-				currency_code: currency,
-				amount: amount.to_f,
+				currency_code: currency.upcase,
+				amount:  amount.to_f,
 				address: address,
 			}
-			fee = 0.0005 < fee.to_f ? 0.0005 : fee.to_f
-			params['additional_fee']  = fee    if fee != 0.0
-			params['code']            = code.to_i  if code != ''
+			if fee != ''
+				fee = 0.0005 < fee.to_f ? 0.0005 : fee.to_f
+				params[:additional_fee]  = fee
+			end
+			params[:code]            = code.to_i  if code != ''
 
 			post('sendcoin', params)
 		end
 
 		#BTC/ETH送付履歴
-		def get_coin_outs(count=100, before=0, after=0)
-			params = {
-				count:   count,
-				before: before,
-				after:   after
-			}
+		def get_coin_outs(count='', before='', after='')
+		  params = Hash.new
+			#params[:message_id] = id if id     != ''
+			params[:count]  = count  if count  != ''
+			params[:before] = before if before != ''
+			params[:after]  = after  if after  != ''
 
 			get('getcoinouts', params)
 		end
 
-		def get_coin_outs_id(id)
-			params = { message_id: id }
+		#BTC/ETH送付状況確認
+		# @params [String] message_id sendcoinAPIの戻り値を指定
+		# @return [hash]
+		def get_coin_outs_id(message_id)
+			params = { message_id: message_id }
 
 			get('getcoinouts', params)
 		end
@@ -115,12 +129,11 @@ module Vexapion
 		end
 
 		#デポジット入金履歴
-		def get_deposits(count=100, before=0, after=0)
-			params = {
-				count:  count,
-				before:  before,
-				after:  after
-			}
+		def get_deposits(count='', before='', after='')
+		  params = Hash.new
+			params[:count]  = count  if count  != ''
+			params[:before] = before if before != ''
+			params[:after]  = after  if after  != ''
 
 			get('getdeposits', params)
 		end
@@ -128,22 +141,21 @@ module Vexapion
 		#デポジット解約(出金)
 		def withdraw(currency, id, amount, code='')
 			params = {
-				currency_code:    currency,
+				currency_code:    currency.upcase,
 				bank_account_id:  id,
-				amount:            amount
+				amount:           amount
 			}
-			params['code'] = code if code != ''
+			params[:code] = code if code != ''
 
 			post('withdraw', params)
 		end
 
 		#デポジット解約履歴(出金)
-		def get_withdrawals(count=100, before=0, after=0)
-			params = {
-				count:  count,
-				before: before,
-				after:  after
-			}
+		def get_withdrawals(count='', before='', after='')
+		  params = Hash.new
+			params[:count]  = count  if count  != ''
+			params[:before] = before if before != ''
+			params[:after]  = after  if after  != ''
 
 			get('getwithdrawals', params)
 		end
@@ -152,50 +164,33 @@ module Vexapion
 		#新規注文を出す
 		def send_child_order(pair, type, side, price, size, expire='', force='')
 			params = {
-				product_code:      pair,
-				child_order_type:  type,
-				side:              side,
-				price:            price,
-				size:              size
+				product_code:      pair.upcase,
+				child_order_type:  type.upcase,
+				side:              side.upcase,
+				price:             price,
+				size:              size.to_f
 			}
-			params['minute_to_expire']  = expire  if expire != ''
-			params['time_in_force']      = force    if force != ''
+			params[:minute_to_expire]  = expire  if expire != ''
+			params[:time_in_force]     = force   if force  != ''
 
 			post('sendchildorder', params)
 		end
 			
-		#注文をキャンセルする
-		def cancel_child_order(pair, order_id='', order_acceptance_id='')
-			if order_id != ''
-				params = {
-					product_code:    pair,
-					child_order_id:  order_id
-				}
-			else
-				params = {
-					product_code:                pair,
-					child_order_acceptance_id:  order_acceptance_id
-				}
-			end
-
-			post('cancelchildorder', params)
-		end
-
 		#child_order_idを指定して、注文をキャンセルする
-		def cancel_child_order_id(pair, order_id)
+		def cancel_child_order(pair, order_id)
 			params = {
-				product_code:    pair,
-				child_order_id:  order_id
+				product_code:   pair.upcase,
+				child_order_id: order_id
 			}
 
 			post('cancelchildorder', params)
 		end
 
 		#child_order_acceptance_idを指定して、注文をキャンセルする
-		def cancel_child_order_acceptance_id(pair, acceptance_id)
+		def cancel_child_order_specify_acceptance_id(pair, acceptance_id)
 			params = {
-				product_code:                pair,
-				child_order_acceptance_id:  acceptance_id
+				product_code:              pair.upcase,
+				child_order_acceptance_id: acceptance_id
 			}
 
 			post('cancelchildorder', params)
@@ -209,44 +204,52 @@ module Vexapion
 		end
 
 		#parent_order_idを指定して、親注文をキャンセルする
-		def cancel_parent_order_id(pair, order_id)
-			post('cancelparentorder', product_code: pair, parent_order_id: order_id)
+		def cancel_parent_order(pair, order_id)
+		  params = {
+			  product_code: pair.upcase,
+			  parent_order_id: order_id
+		  }
+
+			post('cancelparentorder', params)
 		end
 
 		#parent_order_acceptance_idを指定して、親注文をキャンセルする
-		def cancel_parent_order_acceptance_id(pair, acceptance_id)
-			post('cancelparentorder', product_code: pair,
-				parent_order_acceptance_id: acceptance_id)
+		def cancel_parent_order_specify_acceptance_id(pair, acceptance_id)
+		  params = {
+			  product_code: pair.upcase,
+				parent_order_acceptance_id: acceptance_id
+			}
+			post('cancelparentorder', params)
 		end
 
 		#すべての注文をキャンセルする
 		def cancel_all_child_order(pair)
-			post('cancelallchildorder', product_code: pair)
+			post('cancelallchildorders', product_code: pair.upcase)
 		end
 
 		#注文の一覧を取得
-		def get_child_orders(pair, count=100, before=0, after=0, state='', pid='')
+		def get_child_orders(pair, state='', pid='', count='', before='', after='')
 			params = {
-				product_code: pair,
-				count: count,
-				before: before,
-				after: after
+				product_code: pair.upcase
 			}
-			params['child_order_state']  = state  if state != ''
-			params['parent_order_id']    = pid    if pid != ''
+			params[:child_order_state]  = state  if state != ''
+			params[:parent_order_id]    = pid    if pid != ''
+			params[:count]  = count  if count  != ''
+			params[:before] = before if before != ''
+			params[:after]  = after  if after  != ''
 
 			get('getchildorders', params)
 		end
 
 		#親注文の一覧を取得
-		def get_parent_orders(pair, count=100, before=0, after=0, state='')
+		def get_parent_orders(pair, state='', count='', before='', after='')
 			params = {
-				product_code: pair,
-				count: count,
-				before: before,
-				after: after
+				product_code: pair.upcase
 			}
-			params['parent_order_state']  = state  if state != ''
+			params[:parent_order_state]  = state  if state != ''
+			params[:count]  = count  if count  != ''
+			params[:before] = before if before != ''
+			params[:after]  = after  if after  != ''
 
 			get('getparentorders', params)
 		end
@@ -257,31 +260,30 @@ module Vexapion
 		end
 
 		#parent_order_acceptance_idを指定して、親注文の詳細を取得
-		def get_parent_order(acceptance_id)
+		def get_parent_order_specify_acceptance_id(acceptance_id)
 			get('getparentorder', parent_order_acceptance_id: acceptance_id)
 		end
 
 		#約定の一覧を取得
-		def get_executions(pair, count=100, before=0, after=0, child_order_id='',
-				child_order_acceptance_id='')
+		def get_executions(pair, coid='', child_order_acceptance_id='',
+			  count='', before='', after='')
 			params = {
-				product_code: pair,
-				count:         count,
-				before:       before,
-				after:         after
+				product_code: pair.upcase
 			}
-			params['child_order_id'] = child_order_id if child_order_id != ''
-
+			params['child_order_id'] = coid if coid != ''
 			if child_order_acceptance_id != ''
 				params['child_order_acceptance_id']  = child_order_acceptance_id  
 			end
+			params[:count]  = count  if count  != ''
+			params[:before] = before if before != ''
+			params[:after]  = after  if after  != ''
 
-			get('getparentorders', params)
+			get('getexecutions', params)
 		end
 
 		#建玉の一覧を取得
-		def get_positions(pair)
-			get('getpositions', product_code: pair)
+		def get_positions(pair='FX_BTC_JPY')
+			get('getpositions', product_code: pair.upcase)
 		end
 
 
@@ -301,6 +303,7 @@ module Vexapion
 		def get(command, query={})
 			method = 'GET'
 			uri = URI.parse "#{@private_url}#{command}"
+			uri.query = URI.encode_www_form(query) if query != {}
 			timestamp = get_nonce.to_s
 			text = "#{timestamp}#{method}#{uri.request_uri}"
 			sign = signature(text)
@@ -315,10 +318,11 @@ module Vexapion
 			do_command(uri, request)
 		end
 
-		def post(command, body={})
+		def post(command, params={})
 			method = 'POST'
 			uri = URI.parse "#{@private_url}#{command}"
 			timestamp = get_nonce.to_s
+			body = params.to_json #add
 
 			text = "#{timestamp}#{method}#{uri.request_uri}#{body}"
 			sign = signature(text)
@@ -326,7 +330,9 @@ module Vexapion
 			request = Net::HTTP::Post.new(uri.request_uri, initheader = header)
 			request.body = body
 
-			do_command(uri, request)
+			res = do_command(uri, request)
+			error_check(res)
+			res
 		end
 
 		def signature(data)
@@ -336,10 +342,10 @@ module Vexapion
 
 		def headers(sign, timestamp)
 			headers = {
-				'ACCESS-KEY'        =>  @key,
-				'ACCESS-TIMESTAMP'  =>  timestamp,
-				'ACCESS-SIGN'        =>  sign,
-				'Content-Type'      =>  'application/json'
+				'ACCESS-KEY'        => @key,
+				'ACCESS-TIMESTAMP'  => timestamp,
+				'ACCESS-SIGN'       => sign,
+				'Content-Type'      => 'application/json'
 			}
 		end
 

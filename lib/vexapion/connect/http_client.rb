@@ -85,14 +85,14 @@ module Vexapion
 
 				#1.success
 				when Net::HTTPSuccess
-					#2.success but response == nil
-					if response.body == nil
+					#2.success but response.body == ''
+					#if response.body == ''
 						# puts warning message
-						STDERR.puts Time.now.strftime("%d %H:%M:%S.%3N")
-						str = "[HTTP error]\nurl=%s\nstatus=%d: %s\n"%[
-							uri.to_s, response.code, response.message]
-						STDERR.puts str
-					end
+						#t = Time.now.strftime("%d %H:%M:%S.%3N")
+						#str = "[response is void]\nurl=%s\nstatus=%d: %s\n"%[
+						#	uri.to_s, response.code, response.message]
+						#STDERR.puts "#{t} #{str}"
+					#end
 
 					return response.body
 

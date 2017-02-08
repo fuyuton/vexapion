@@ -3,7 +3,7 @@ require 'yaml'
 
 local = true
 public = true
-priv = false
+priv = true
 
 pair = 'btc_jpy'
 
@@ -28,10 +28,14 @@ if priv == true
 			puts api.get_info2
 			puts api.get_personal_info
 			puts api.active_orders(pair = '')
-			puts api.trade(pair, action, price, amount, limit = '')
-			puts api.cancel_order(id)
+			#puts api.trade(pair, action, price, amount, limit = '')
+			#puts api.cancel_order(id)
 			puts api.trade_history(pair)
+
+			currency = 'btc'
+
 			#puts api.withdraw(currency, amount, address, fee = nil, message = nil)
+
 			puts api.deposit_history(currency)
 			puts api.withdraw_history(currency)
 end

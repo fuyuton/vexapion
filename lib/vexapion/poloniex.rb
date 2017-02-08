@@ -21,7 +21,7 @@ module Vexapion
 # Public API
 
 		def volume_24hours
-			get('return24Volume')
+			get('return24hVolume')
 		end
 
 		def ticker
@@ -29,11 +29,14 @@ module Vexapion
 		end
 
 		def orderbook(pair, depth)
-			get('returnOrderBook', currencyPair: pair, depth: depth)
+			get('returnOrderBook', currencyPair: pair.upcase, depth: depth)
 		end
 
-		def market_trade_history(pair)
-			get('returnTradeHistory', currencyPair: pair)
+		def market_trade_history(pair, start_time='', end_time='')
+			params = { currencyPair: pair.upcase }
+			params[:start] = start_time if start_time != ''
+			params[:end] = end_time if end_time != ''
+			get('returnTradeHistory', params)
 		end
 
 
@@ -48,24 +51,26 @@ module Vexapion
 		end
 
 		def complete_balances(account='all')
-			post('returnCompleteBalances', account: account)
+			post('returnCompleteBalances', 'account' => account)
 		end
 
 		def open_orders(pair)
-			post('returnOpenOrders', currencyPair: pair)
+			post('returnOpenOrders', currencyPair: pair.upcase)
 		end
 
 		def trade_history(pair, start, end_time)
-			post('returnTradeHistory', currencyPair: pair,
-				start: start, end: end_time)
+			post('returnTradeHistory', 'currencyPair' => pair.upcase,
+				'start' => start, 'end' => end_time)
 		end
 
 		def buy(pair, rate, amount)
-			post('buy', currencyPair: pair, rate: rate, amount: amount)
+			post('buy', 'currencyPair' => pair.upcase, 
+				'rate' => rate, 'amount' => amount)
 		end
 
 		def sell(pair, rate, amount)
-			post('sell', currencyPair: pair, rate: rate, amount: amount)
+			post('sell', 'currencyPair' => pair.upcase,
+				'rate' => rate, 'amount' => amount)
 		end
 
 		def cancel_order(order_number)
@@ -73,11 +78,12 @@ module Vexapion
 		end
 
 		def move_order(order_number, rate)
-			post('moveOrder', orderNumber: order_number, rate: rate)
+			post('moveOrder', orderNumber: order_number, 'rate' => rate)
 		end
 
 		def withdraw(currency, amount, address)
-			post('widthdraw', currency: currency, amount: amount, address: address)
+			post('widthdraw', currency: currency.upcase,
+				'amount' => amount, 'address' => address)
 		end
 
 		def available_account_balances
@@ -88,9 +94,9 @@ module Vexapion
 			post('returnTradableBalances')
 		end
 
-		def transfer_balance(currency, amount, from_ccount, to_account)
-			post('transferBalance', currency: currency, amount: amount,
-				fromAccount: from_ccount, toAccount: to_account)
+		def transfer_balance(currency, amount, from_account, to_account)
+			post('transferBalance', currency: currency.upcase, amount: amount,
+				fromAccount: from_account, toAccount: to_account)
 		end
 
 		def margin_account_summary
@@ -98,12 +104,13 @@ module Vexapion
 		end
 
 		def margin_buy(pair, rate, amount)
-			post('marginBuy', currencyPair: pair, rate: rate, amount: amount)
+			post('marginBuy', 'currencyPair' => pair.upcase,
+			  'rate' => rate, 'amount' => amount)
 		end
 
-		def margin_sell(currency_pair, rate, amount)
-			post('marginSell', currencyPair: currency_pair,
-				rate: rate, amount: amount)
+		def margin_sell(pair, rate, amount)
+			post('marginSell', 'currencyPair' => pair.upcase,
+				'rate' => rate, 'amount' => amount)
 		end
 
 		def deposit_addresses
@@ -111,12 +118,12 @@ module Vexapion
 		end
 
 		def generate_new_address(currency)
-			post('generateNewAddress', currency: currency)
+			post('generateNewAddress', 'currency' => currency.upcase)
 		end
 
 		def deposits_withdrawals(start_time, end_time, count)
 			post('returnDepositsWithdrawals',
-				start: start_time, end: end_time, count: count)
+				'start' => start_time, 'end' => end_time, 'count' => count)
 		end
 
 #  Create request header & body
@@ -129,7 +136,9 @@ module Vexapion
 			uri = URI.parse @public_url + param
 			request = Net::HTTP::Get.new(uri.request_uri)
 
-			do_command(uri, request)
+			res = do_command(uri, request)
+			error_check(res)
+			res
 		end
 
 		def post(command, params = {})
@@ -143,7 +152,9 @@ module Vexapion
 			request = Net::HTTP::Post.new(uri.request_uri, initheader = header)
 			request.body = post_data
 
-			do_command(uri, request)
+			res = do_command(uri, request)
+			error_check(res)
+			res
 		end
 
 		def signature(data)

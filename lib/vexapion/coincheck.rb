@@ -16,7 +16,6 @@ module Vexapion
 			@public_url = "https://coincheck.com/api/"
 			@private_url = "https://coincheck.com/api/"
 			set_verify_mode(OpenSSL::SSL::VERIFY_NONE)
-			#set_verify_mode(OpenSSL::SSL::VERIFY_PEER)
 		end
 
 # Public API
@@ -68,10 +67,10 @@ module Vexapion
 		# @return [Hash]
 		def sales_rate(pair, price='', amount='')
 			params = {
-				'pair'        =>  pair.downcase,
+				'pair' => pair.downcase,
 			}
 
-			public_get('exchange/orders/rate')
+			public_get('exchange/orders/rate', params)
 		end
 		
 # Private API
@@ -97,10 +96,10 @@ module Vexapion
 		# @return [Hash]
 		def order(pair, order_type, rate, amount, stop_loss_rate = '')
 			params = {
-				'rate'        =>  rate,
-				'amount'      =>  amount,
-				'pair'        =>  pair.downcase,
-				'order_type'   =>  order_type.downcase
+				'rate'        => rate,
+				'amount'      => amount,
+				'pair'        => pair.downcase,
+				'order_type'  => order_type.downcase
 			}
 			params['stop_loss_rate'] = stop_loss_rate if stop_loss_rate != ''
 
@@ -115,9 +114,9 @@ module Vexapion
 		# @return [Hash]
 		def market_buy(pair, amount_jpy, stop_loss_rate = '')
 			params = {
-				'pair'        => pair.downcase,
-				'order_type'  => "market_buy",
-				'market_buy_amount'  =>  amount_jpy
+				'pair'       => pair.downcase,
+				'order_type' => "market_buy",
+				'market_buy_amount' => amount_jpy
 			}
 			params['stop_loss_rate'] = stop_loss_rate if stop_loss_rate != ''
 		
@@ -132,9 +131,9 @@ module Vexapion
 		# @return [Hash]
 		def market_sell(pair, amount, stop_loss_rate = '')
 			params = {
-				'pair'        => pair.downcase,
-				'order_type'  => "market_sell",
-				'amount'      =>  amount
+				'pair'       => pair.downcase,
+				'order_type' => "market_sell",
+				'amount'     => amount
 			}
 			params['stop_loss_rate'] = stop_loss_rate if stop_loss_rate != ''
 
@@ -143,10 +142,10 @@ module Vexapion
 
 
 		#レバレッジ新規取引
-		# @param [String] pair  現在は'btc_jpy'のみ
-		# @param [String] order_type  'sell' or 'buy'
-		# @param [Integer]  rate  注文のレート 例28000
-		# @param [Float]  amount  注文での量 例0.1
+		# @param [String]  pair  現在は'btc_jpy'のみ
+		# @param [String]  order_type  'sell' or 'buy'
+		# @param [Integer] rate  注文のレート 例28000
+		# @param [Float]   amount  注文での量 例0.1
 		# @param [Integer] stop_loss_rate 省略可 逆指値レート
 		# @return [Hash]
 		def order_leverage(pair, order_type, rate, amount, stop_loss_rate = '')
@@ -179,34 +178,36 @@ module Vexapion
 		end
 
 		#レバレッジ決済売買
+		# @param [String] pair  現在は'btc_jpy'のみ
 		# @param [String] close_position  'long' or 'short'
 		# @param [Integer]  position_id  ポジションID
 		# @param [Integer]  rate  注文のレート 例28000
 		# @param [Float]  amount  注文での量 例0.1
 		# @return [Hash]
-		def close_position(close_position, position_id, rate, amount)
+		def close_position(pair, close_position, position_id, rate, amount)
 			params = {
-				'pair'         => pair.downcase,
+				'pair'        => pair.downcase,
+				'order_type'  => "close_#{close_position.downcase}",
+				'position_id' => position_id.to_i,
 				'rate'        => rate.to_f,
-				'amount'      => amount.to_f,
-				'order_type'   => "close_#{close_position.downcase}",
-				'position_id'  => position_id.to_i
+				'amount'      => amount.to_f
 			}
 
 			post('exchange/orders', params) 
 		end
 	
 		#レバレッジ決済取引(成行)
+		# @param [String] pair  現在は'btc_jpy'のみ
 		# @param [String] close_position  'long' or 'short'
 		# @param [Integer]  position_id  ポジションID
 		# @param [Float]  amount  注文での量 例0.1
 		# @return [Hash]
-		def close_position_market_order(close_position, position_id, amount)
+		def close_position_market_order(pair, close_position, position_id, amount)
 			params = {
-				'pair'         => pair.downcase,
-				'amount'      => amount.to_f,
-				'order_type'   => "close_#{close_position.downcase}",
-				'position_id'  => position_id.to_i
+				'pair'        => pair.downcase,
+				'order_type'  => "close_#{close_position.downcase}",
+				'position_id' => position_id.to_i,
+				'amount'      => amount.to_f
 			}
 
 			post('exchange/orders', params)
@@ -243,6 +244,7 @@ module Vexapion
 		# @param [String]  status  省略可 'open'/'closed'を指定出来ます
 		# @return [Hash]
 		def position(status='')
+			params = Hash.new
 			params['status'] = status  if status != ''  
 			get('exchange/leverage/positions', params)
 		end
@@ -300,8 +302,6 @@ module Vexapion
 		# 銀行口座一覧
 		# @return [Hash]
 		def bank_accounts
-			return if withdraw == false
-
 			get('bank_accounts')
 		end
 
@@ -313,12 +313,10 @@ module Vexapion
 		# @param [String] name 口座名義
 		# @return [Hash]
 		def regist_bank_account(bank, branch, type, number_str, name)
-			return if withdraw == false
-
 			params = {
-				'bank_name'          => bank,
-				'branch_name'        => branch,
-				'bank_account_type'  => type,
+				'bank_name'         => bank,
+				'branch_name'       => branch,
+				'bank_account_type' => type,
 				'number'            => number_str,
 				'name'              => name
 			}
@@ -330,16 +328,12 @@ module Vexapion
 		# @param [Integer]  id  銀行口座一覧のID
 		# @return [Hash]
 		def delete_bank_account(id)
-			return if withdraw == false
-
 			delete("bank_accounts/#{id}")
 		end
 
 		# 日本円出金履歴
 		# @return [Hash]
 		def bank_withdraw_history
-			return if withdraw == false
-
 			get('withdraws')
 		end
 
@@ -350,13 +344,11 @@ module Vexapion
 		# @param [Boolean]  is_fast  高速出金オプション 省略時デフォルトはfalse
 		# @return [Hash]
 		def bank_withdraw(id, amount, currency = 'JPY', is_fast = false)
-			return if withdraw == false
-
 			params = {
-				'bank_account_id'  => id,
-				'amount'    => amount,
-				'currency'  => currency,
-				'is_fast'    => is_fast
+				'bank_account_id' => id,
+				'amount'   => amount,
+				'currency' => currency,
+				'is_fast'  => is_fast
 			}
 
 			post('withdraws', params)
@@ -366,8 +358,6 @@ module Vexapion
 		# @param [Integer]  id  出金申請のID
 		# @return [Hash]
 		def cancel_bank_withdraw(id)
-			return if withdraw == false
-
 			delete("withdraws/#{id}")
 		end
 
@@ -438,6 +428,7 @@ module Vexapion
 			sig = signature(message)
 			headers = header(nonce, sig)
 			request = Net::HTTP::Get.new(uri.request_uri, headers)
+			request.body = params
 
 			res = do_command(uri, request)
 			error_check(res) #TODO check require

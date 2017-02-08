@@ -68,7 +68,7 @@ module Vexapion
 	end
 
 	#404
-	class NotFoundError < Fatal
+	class NotFoundError < Error
 	end
 
 end #of Vexapion module

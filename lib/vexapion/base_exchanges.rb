@@ -33,8 +33,8 @@ module Vexapion
 			rescue HTTPError => e
 				raise e
 			end
-				
-			response == nil ? nil : JSON.parse(response)
+
+			response == '' ? '' : JSON.parse(response)
 		end
 			
 		def get_nonce
@@ -42,11 +42,23 @@ module Vexapion
 		end
 
 		def error_check(res)
-			if res.has_key?('error')
-				#通信は成功した。だがリクエストは失敗した"
-				fail RequestFailed.new(
-					false, res['error'], res)
+			if res != nil && res != '' && res.kind_of?(Hash)
+				
+				if res['success'] == 0 || res['success'] == 'false'
+				  #polo
+					fail RequestFailed.new(
+						false, false, res)
+				elsif res.has_key?('error')
+				  #zaif, polo
+					fail RequestFailed.new(
+						false, res['error'], res)
+				elsif res.has_key?('error_message') 
+				  #bitflyer
+					fail RequestFailed.new(
+						false, "#{res['status']} #{res['error_message']}", res)
+				end
 			end
+
 		end
 
 	end #of class

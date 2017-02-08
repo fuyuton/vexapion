@@ -105,10 +105,10 @@ module Vexapion
 		# @return [Hash]
 		def trade(pair, action, price, amount, limit = '')
 			params = {
-				currency_pair:  pair,
-				action:          action,
-				price:          price,
-				amount:          amount
+				'currency_pair'  => pair,
+				'action'         => action,
+				'price'          => price,
+				'amount'         => amount
 			}
 			params['limit'] = limit if limit != ''
 
@@ -119,30 +119,30 @@ module Vexapion
 		# @param  [Integer]  id      注文ID
 		#  @return  [Hash]
 		def cancel_order(id)
-			post('cancel_order', order_id: id)
+			post('cancel_order', 'order_id' => id)
 		end
 
 		# トレードヒストリーを取得します。
-		# @param [String]    pair       取得したい通貨ペア
+		# @param [String]   pair       取得したい通貨ペア
 		# @param [Integer]  i_since    開始タイムスタンプ(UNIX time)
 		# @param [Integer]  i_end      終了タイムスタンプ(UNIX time)
-		# @param [Integer]  i_from    この順番のレコードから取得
+		# @param [Integer]  i_from     この順番のレコードから取得
 		# @param [Integer]  i_count    取得するレコード数
 		# @param [Integer]  from_id    このトランザクションIDのレコードから取得
-		# @param [Integer]  end_id    このトランザクションIDのレコードまで取得
-		# @param [String]    order      ソート順('ASC'/'DESC')
+		# @param [Integer]  end_id     このトランザクションIDのレコードまで取得
+		# @param [String]   order      ソート順('ASC'/'DESC')
 		# @return [Hash]
 		def trade_history(pair = '', i_since = '', i_end = '',
 			i_from = '', i_count = '', from_id = '', end_id = '', order = '')
 
 			params = Hash.new
-			params['currency_pair']  = pair    if pair      != ''
+			params['currency_pair']  = pair     if pair     != ''
 			params['since']          = i_since  if i_since  != ''
 			params['end']            = i_end    if i_end    != ''
-			params['from']          = i_from  if i_from    != ''
+			params['from']           = i_from   if i_from   != ''
 			params['count']          = i_count  if i_count  != ''
 			params['from_id']        = from_id  if from_id  != ''
-			params['end_id']        = end_id  if end_id    != ''
+			params['end_id']         = end_id   if end_id   != ''
 			params['order']          = order    if order    != ''
 
 			post('trade_history', params)
@@ -150,46 +150,46 @@ module Vexapion
 
 
 		# 払出のリクエストをします。
-		#  @param [String]    currency  払出したい通貨
+		#  @param [String]   currency  払出したい通貨
 		#  @param [Float]    amount    送金量
-		#  @param [String]    address    送信先アドレス
+		#  @param [String]   address    送信先アドレス
 		#  @param [Float]    fee        採掘者への手数料(XEM以外)
 		# @param [String]    message    送信メッセージ(XEMのみ)
 		# @return [Hash]
 		def withdraw(currency, amount, address, fee = nil, message = nil)
 			params = {
-				currency:  currency.downcase,
-				amount:    amount,
-				address:  address
+				'currency'  => currency.downcase,
+				'amount'    => amount,
+				'address'   => address
 			}
 			params['message'] = message if message  != nil
-			params['opt_fee'] = fee     if fee       != nil
+			params['opt_fee'] = fee     if fee      != nil
 
 			post('withdraw', params)
 		end
 
 		# 入金履歴を取得します。
-		#  @param [String]    currency  取得したい通貨
+		# @param [String]   currency   取得したい通貨
 		# @param [Integer]  i_since    開始タイムスタンプ(UNIX time)
 		# @param [Integer]  i_end      終了タイムスタンプ(UNIX time)
-		# @param [Integer]  i_from    この順番のレコードから取得
+		# @param [Integer]  i_from     この順番のレコードから取得
 		# @param [Integer]  i_count    取得するレコード数
 		# @param [Integer]  from_id    このトランザクションIDのレコードから取得
-		# @param [Integer]  end_id    このトランザクションIDのレコードまで取得
-		# @param [String]    order      ソート順('ASC'/'DESC')
+		# @param [Integer]  end_id     このトランザクションIDのレコードまで取得
+		# @param [String]   order      ソート順('ASC'/'DESC')
 		# @return [Hash]
 		def deposit_history(currency, i_since = '', i_end = '',
 			i_from = '', i_count = '', from_id = '', end_id = '', order = '')
 
 			params = Hash.new
 			params['currency']  = currency
-			params['since']      = i_since  if i_since   != ''
-			params['end']        = i_end    if i_end     != ''
-			params['from']      = i_from  if i_from   != ''
-			params['count']      = i_count  if i_count   != ''
-			params['from_id']    = from_id  if from_id   != ''
-			params['end_id']    = end_id  if end_id   != ''
-			params['order']      = order    if order     != ''
+			params['since']     = i_since  if i_since  != ''
+			params['end']       = i_end    if i_end    != ''
+			params['from']      = i_from   if i_from   != ''
+			params['count']     = i_count  if i_count  != ''
+			params['from_id']   = from_id  if from_id  != ''
+			params['end_id']    = end_id   if end_id   != ''
+			params['order']     = order    if order    != ''
 
 			post('deposit_history', params)
 		end
@@ -209,13 +209,13 @@ module Vexapion
 
 			params = Hash.new
 			params['currency']  = currency
-			params['since']      = i_since  if i_since   != ''
-			params['end']        = i_end    if i_end     != ''
-			params['from']      = i_from  if i_from   != ''
-			params['count']      = i_count  if i_count  != ''
-			params['from_id']    = from_id  if from_id  != ''
-			params['end_id']    = end_id  if end_id    != ''
-			params['order']      = order    if order    != ''
+			params['since']     = i_since  if i_since  != ''
+			params['end']       = i_end    if i_end    != ''
+			params['from']      = i_from   if i_from   != ''
+			params['count']     = i_count  if i_count  != ''
+			params['from_id']   = from_id  if from_id  != ''
+			params['end_id']    = end_id   if end_id   != ''
+			params['order']     = order    if order    != ''
 
 			post('withdraw_history', params)
 		end
