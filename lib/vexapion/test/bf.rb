@@ -4,7 +4,6 @@ require 'yaml'
 pair1 = 'BTC_JPY'
 pair2 = 'BTC_JPY'
 
-home_dir = "/home/fuyuton"
 key_file = "key/bf.yml"
 file = File.read(key_file)
 key = YAML.load(file)

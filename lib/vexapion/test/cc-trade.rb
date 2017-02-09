@@ -2,6 +2,7 @@ require 'vexapion/coincheck'
 require 'yaml'
 
 pair = 'btc_jpy'
+
 key_file = "key/cc.yml"
 keydata = File.read(key_file)
 key = YAML.load(keydata)

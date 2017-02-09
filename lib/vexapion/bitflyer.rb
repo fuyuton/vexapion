@@ -115,7 +115,7 @@ module Vexapion
 		end
 
 		#BTC/ETH送付状況確認
-		# @params [String] message_id sendcoinAPIの戻り値を指定
+		# @params [String]	message_id	sendcoinAPIの戻り値を指定
 		# @return [hash]
 		def get_coin_outs_id(message_id)
 			params = { message_id: message_id }

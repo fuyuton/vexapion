@@ -4,6 +4,8 @@ require 'yaml'
 key_file = "key/polo.yml"
 file = File.read(key_file)
 key = YAML.load(file)
+
+
 api = Vexapion::Poloniex.new(key['access-key'], key['secret-key'])
 #pair = 'ltc_usdt'.upcase
 pair = 'usdt_ltc'

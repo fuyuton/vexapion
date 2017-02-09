@@ -29,8 +29,8 @@ Gem::Specification.new do |spec|
   spec.test_files	 = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  spec.add_runtime_dependency 'bigdecimal', '~> 1.2.6'
-  spec.add_runtime_dependency 'json', 		'~> 1.8'
+  #spec.add_runtime_dependency 'bigdecimal', '~> 1.2.6'
+  #spec.add_runtime_dependency 'json', 		'~> 1.8'
 
   spec.add_development_dependency 'bundler', '~> 1.12'
   spec.add_development_dependency 'rake',	 '~> 10.0'

@@ -2,9 +2,9 @@
 
 Vexapionは、仮想(暗号)通貨取引所のAPIを簡単に使えるようにしたAPIラッパーです。
 
-現在ほぼ問題なく利用可能なのはZaifのみです。
+現在ほぼ問題なく利用可能なのはCoincheck, Zaifのみです。
 
-Bitflyer, Coincheck, Poloniexも一応利用可能ですが、あまりテストされていません。
+Bitflyer, Poloniexも一応利用可能ですが、マージン取引、特殊取引などに関してはテストされていません。
 
 
 ## Installation
