@@ -5,7 +5,7 @@ pair1 = 'BTC_JPY'
 pair2 = 'BTC_JPY'
 
 home_dir = "/home/fuyuton"
-key_file = "#{home_dir}/.key/test/bf.yml"
+key_file = "key/bf.yml"
 file = File.read(key_file)
 key = YAML.load(file)
 
@@ -35,18 +35,18 @@ amount = 0.001
 #res = api.cancel_child_order_acceptance_id(pair1, coaid)
 #p res
 
-puts 'order'
-puts api.send_child_order(pair1, type, side, price, amount)
-sleep 3
-puts 'get_orders'
-res = api.get_child_orders(pair1)
-puts res
-oid = res[0]['child_order_id']
-puts oid
-puts "cancel"
-res = api.cancel_all_child_order(pair1)
+#puts 'order'
+#puts api.send_child_order(pair1, type, side, price, amount)
+#sleep 3
+#puts 'get_orders'
+#res = api.get_child_orders(pair1)
+#puts res
+#oid = res[0]['child_order_id']
+#puts oid
+#puts "cancel"
+#res = api.cancel_all_child_order(pair1)
 #res = api.cancel_child_order_id(pair1, oid)
-puts res
+#puts res
 
 
 if public == true
@@ -143,8 +143,8 @@ if priv == true
 			#puts "api.get_child_orders(pair1, count=100, before=0, after=0, state='', pid='')"
 			#puts api.get_child_orders(pair1, count=100, before=0, after=0, state='', pid='')
 
-			puts "api.get_parent_orders(pair1, count=100, before=0, after=0, state='')"
-			puts api.get_parent_orders(pair1, count=100, before=0, after=0, state='')
+			#puts "api.get_parent_orders(pair1, count=100, before=0, after=0, state='')"
+			#puts api.get_parent_orders(pair1, count=100, before=0, after=0, state='')
 
 			#puts "api.get_parent_order(parent_order_id)"
 			#puts api.get_parent_order(parent_order_id)

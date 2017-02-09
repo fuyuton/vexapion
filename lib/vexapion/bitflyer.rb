@@ -199,28 +199,28 @@ module Vexapion
 		#新規の親注文を出す(特殊注文)
 		#https://lightning.bitflyer.jp/docs/specialorder を熟読して使用のこと
 		#とても自由度が高いため、ユーザーがパラメータを組み立ててそれを引数にする
-		def send_parent_order(params)
-			post('sendparentorder', params)
-		end
+		#def send_parent_order(params)
+		#	post('sendparentorder', params)
+		#end
 
 		#parent_order_idを指定して、親注文をキャンセルする
-		def cancel_parent_order(pair, order_id)
-		  params = {
-			  product_code: pair.upcase,
-			  parent_order_id: order_id
-		  }
+		#def cancel_parent_order(pair, order_id)
+		#  params = {
+		#	  product_code: pair.upcase,
+		#	  parent_order_id: order_id
+		#  }
 
-			post('cancelparentorder', params)
-		end
+		#	post('cancelparentorder', params)
+		#end
 
 		#parent_order_acceptance_idを指定して、親注文をキャンセルする
-		def cancel_parent_order_specify_acceptance_id(pair, acceptance_id)
-		  params = {
-			  product_code: pair.upcase,
-				parent_order_acceptance_id: acceptance_id
-			}
-			post('cancelparentorder', params)
-		end
+		#def cancel_parent_order_specify_acceptance_id(pair, acceptance_id)
+		#  params = {
+		#	  product_code: pair.upcase,
+		#		parent_order_acceptance_id: acceptance_id
+		#	}
+		#	post('cancelparentorder', params)
+		#end
 
 		#すべての注文をキャンセルする
 		def cancel_all_child_order(pair)
@@ -242,27 +242,27 @@ module Vexapion
 		end
 
 		#親注文の一覧を取得
-		def get_parent_orders(pair, state='', count='', before='', after='')
-			params = {
-				product_code: pair.upcase
-			}
-			params[:parent_order_state]  = state  if state != ''
-			params[:count]  = count  if count  != ''
-			params[:before] = before if before != ''
-			params[:after]  = after  if after  != ''
+		#def get_parent_orders(pair, state='', count='', before='', after='')
+		#	params = {
+		#		product_code: pair.upcase
+		#	}
+		#	params[:parent_order_state]  = state  if state != ''
+		#	params[:count]  = count  if count  != ''
+		#	params[:before] = before if before != ''
+		#	params[:after]  = after  if after  != ''
 
-			get('getparentorders', params)
-		end
+		#	get('getparentorders', params)
+		#end
 
 		#parent_order_idを指定して、親注文の詳細を取得
-		def get_parent_order(parent_order_id)
-			get('getparentorder', parent_order_id: parent_order_id)
-		end
+		#def get_parent_order(parent_order_id)
+		#	get('getparentorder', parent_order_id: parent_order_id)
+		#end
 
 		#parent_order_acceptance_idを指定して、親注文の詳細を取得
-		def get_parent_order_specify_acceptance_id(acceptance_id)
-			get('getparentorder', parent_order_acceptance_id: acceptance_id)
-		end
+		#def get_parent_order_specify_acceptance_id(acceptance_id)
+		#	get('getparentorder', parent_order_acceptance_id: acceptance_id)
+		#end
 
 		#約定の一覧を取得
 		def get_executions(pair, coid='', child_order_acceptance_id='',

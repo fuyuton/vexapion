@@ -105,10 +105,10 @@ module Vexapion
 		# @return [Hash]
 		def trade(pair, action, price, amount, limit = '')
 			params = {
-				'currency_pair'  => pair,
-				'action'         => action,
-				'price'          => price,
-				'amount'         => amount
+				currency_pair: pair,
+				action:        action,
+				price:         price,
+				amount:        amount
 			}
 			params['limit'] = limit if limit != ''
 
@@ -158,9 +158,9 @@ module Vexapion
 		# @return [Hash]
 		def withdraw(currency, amount, address, fee = nil, message = nil)
 			params = {
-				'currency'  => currency.downcase,
-				'amount'    => amount,
-				'address'   => address
+				currency:  currency.downcase,
+				amount:    amount,
+				address:   address
 			}
 			params['message'] = message if message  != nil
 			params['opt_fee'] = fee     if fee      != nil

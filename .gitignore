@@ -9,3 +9,7 @@
 /tmp/
 /lib/**/.yardoc/
 /lib/**/unimplement/
+/lib/**/test/key
+/lib/**/test/key/
+*.yml
+

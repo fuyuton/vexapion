@@ -5,9 +5,7 @@ public = false
 priv = true
 
 pair = 'btc_jpy'
-home_dir = "/home/fuyuton"
-key_file = "#{home_dir}/.key/test/cc.yml"
-#key_file = '/home/fuyuton/src/wcci/trade/coincheck/coincheck.yml'
+key_file = "key/cc.yml"
 keydata = File.read(key_file)
 key = YAML.load(keydata)
 
