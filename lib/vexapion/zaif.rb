@@ -244,7 +244,7 @@ module Vexapion
 			request['Sign'] = signature(request)
 
 			res = do_command(uri, request)
-			error_check(res)
+			#error_check(res)
 			res
 		end
 
