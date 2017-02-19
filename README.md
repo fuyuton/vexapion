@@ -34,7 +34,7 @@ require 'vexapion/zaif'
 
 クラスの初期化をします。
 ```ruby
-zapi = Vexapion::Zaif.new(API鍵, 秘密鍵)
+zapi = Vexapion::Zaif.new(APIkey, secretkey)
 ```
 
 扱いたいペアを指定します
@@ -76,14 +76,11 @@ zapi.buy(pair, ask, amount)
 例外。
 各メソッドはHTTPを使って取引所と通信をします。そのため接続できなかった場合などにエラーが返ってくることがあります。
 
-Vexapionでは、その際のHTTPステータスなどを使っていくつかのランクに分けた例外が発生します。
-
-
-大まかに分けて6つの例外があります。
+Vexapionには、4つの例外があります。
 
 Vexapion::RetryException は、サーバー側にエラーが発生し、接続が出来ないまたは、リクエストが通ったかどうか定かでない状態になったときに発生します。
 
-当初Vexapion側で自動的に再接続処理をする予定で付けていた名残でRetryExceptionという名前になっています。将来的に変更される可能性があります。
+(当初Vexapion側で自動的に再接続処理をする予定で付けていた名残でRetryExceptionという名前になっています。将来的に変更される可能性があります)
 
 Vexapion::Warning は、場合によってはアプリ側で無視出来るかもしれないエラーになります。
 
@@ -99,5 +96,5 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/vexapion.
+Bug reports and pull requests are welcome on GitHub at https://github.com/fuyuton/vexapion.
 
