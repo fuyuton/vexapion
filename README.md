@@ -62,8 +62,8 @@ btc_available = balance['btc']
 
 売買します
 ```ruby
-zapi.sell(pair, bid, amount)
-zapi.buy(pair, ask, amount)
+zapi.sell(pair, rate, amount)
+zapi.buy(pair, rate, amount)
 ```
 
 等のように使います。
