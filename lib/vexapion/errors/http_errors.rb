@@ -1,3 +1,4 @@
+# :stopdoc:
 # coding: utf-8
 
 # based off of quandl gem: https://github.com/quandl/quandl-ruby
@@ -22,10 +23,6 @@ module Vexapion
 	class RetryException < HTTPError
 	end
 
-	#場合によってはアプリ側で無視できるエラー
-	class Warning < HTTPError
-	end
-
 	#アプリ側で止めて書き直しが必要なエラー
 	class Error < HTTPError
 	end
@@ -34,41 +31,6 @@ module Vexapion
 	class Fatal < HTTPError
 	end
 
-
-	#408 Request Timeout
-	class RequestTimeout < RetryException
-	end
-
-	#500
-	class InternalServerError < RetryException
-	end
-
-	#503
-	class ServiceUnavailableError < RetryException
-	end
-
-	#Request Success but response.body == nil
-	class ResponseDataError < Warning
-	end
-
-	#509, and API Limit?
-	class LimitExceededError < Warning
-	end
-
-	#400
-	class InvalidRequestError < Error
-	end
-
-	#401
-	class AuthenticationError < Error
-	end
-
-	#403
-	class ForbiddenError < Error
-	end
-
-	#404
-	class NotFoundError < Error
-	end
-
 end #of Vexapion module
+# :startdoc:
+

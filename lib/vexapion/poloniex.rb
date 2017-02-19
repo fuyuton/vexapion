@@ -5,6 +5,7 @@ require 'vexapion'
 module Vexapion
 
 	class Poloniex < BaseExchanges
+# :stopdoc:
 		def initialize(key = nil, secret = nil)
 			super(key, secret)
 			
@@ -12,6 +13,7 @@ module Vexapion
 			@private_url = 'https://poloniex.com/tradingApi'
 			set_min_interval(0.5)
 		end
+# :startdoc:
 
 		def set_min_interval(sec)
 			@conn.min_interval = sec
@@ -149,7 +151,7 @@ module Vexapion
 			header = headers(signature(post_data))
 
 			uri = URI.parse @private_url 
-			request = Net::HTTP::Post.new(uri.request_uri, initheader = header)
+			request = Net::HTTP::Post.new(uri.request_uri, header)
 			request.body = post_data
 
 			res = do_command(uri, request)
@@ -167,6 +169,12 @@ module Vexapion
 				'Sign'  =>  sign,
 				'Key'    =>  @key
 			}
+		end
+
+		def error_check(res)
+			if !res.nil? && res['success'] == 0 && res.has_key?('errors')
+				fail Warning(0, res['errors'])
+			end
 		end
 
 	end #of class

@@ -1,12 +1,15 @@
+# :stopdoc:
 # coding: utf-8
 
 require 'vexapion'
+require 'bigdecimal'
 
 module Vexapion
 
 	class HTTPClient
 		
-		attr_writer  :timeout, :timeout_keepalive, :min_interval, :num_of_retry
+		attr_writer :timeout, :timeout_keepalive, :min_interval
+		attr_reader :response_time
 
 		def initialize(i_sec=0.5, i_num=1)
 			@connections = {}
@@ -18,10 +21,16 @@ module Vexapion
 			@num_of_retry = i_num
 			@last_access_time = Time.now.to_f
 		end
+		
+		def disconnect
+			@connections.values.each do |connection|
+				connection.finish
+			end
+		end
 
 		def terminate
 			@connections.values.each do |connection|
-				connection.finish
+				connection = nil
 			end
 		end
 
@@ -58,103 +67,53 @@ module Vexapion
 		# @raise Fatal APIラッパーの修正が必要になると思われるエラー
 		# @return [String] request.bodyを返す
 		def http_request(uri, request, verify_mode=nil)
-			prev_wait = retry_wait = @sleep_in_sec
-			@num_of_retry.times do
-				#最低接続間隔の保証
-				now = Time.now.to_f
-				elapse = now - @last_access_time
-				if elapse < @min_interval
-					s = @min_interval - elapse
-					sleep s
-				end
-				@last_access_time = Time.now.to_f
-				#puts (@last_access_time - now + elapse).round(4)*1000
-				
-				begin
-					#t1 = Time.now.to_f
-					http = connection(uri, verify_mode)
-					response = http.request(request)
-					#t2 = Time.now.to_f
-					#STDERR.puts "\nAPIcall: response: #{(t2-t1).round(4)*1000}ms"
-				rescue SocketError => e
-					fail SocketError.new(success, e.body, e)
-					#raise
-				end
-				
-				case response
+			#最低接続間隔の保証
+			now = Time.now.to_f
+			elapse = f_minus(now, @last_access_time)
+			if elapse < @min_interval
+				s = f_minus(@min_interval, elapse)
+				sleep s
+			end
+			@last_access_time = Time.now.to_f
+			#puts (f_minus(@last_access_time, now) + elapse).round(4)*1000
+			
+			response = nil
+			begin
+				t1 = Time.now.to_f
+				http = connection(uri, verify_mode)
+				response = http.request(request)
+				t2 = Time.now.to_f
+				@response_time = f_minus(t2, t1).round(4)*1000
+				#STDERR.puts "\nAPI response time: #{@response_time}ms"
 
-				#1.success
-				when Net::HTTPSuccess
-					#2.success but response.body == ''
-					#if response.body == ''
-						# puts warning message
-						#t = Time.now.strftime("%d %H:%M:%S.%3N")
-						#str = "[response is void]\nurl=%s\nstatus=%d: %s\n"%[
-						#	uri.to_s, response.code, response.message]
-						#STDERR.puts "#{t} #{str}"
-					#end
+			rescue SocketError, Net::OpenTimeout => e
+				fail RetryException.new('0', e.body)
 
-					return response.body
+			rescue Net::ReadTimeout => e
+				http_status_code = 408
+				#message = "Timeout"
+				fail RetryException.new(http_status_code, e.body)
+			end
+			
+			handle_http_error(response) if response.code.to_i != 200
 
-				#3.server error
-				when Net::ReadTimeout, Net::HTTPServerError
-					# retryするつもりだったけど、アプリに任せる
-					#retry_wait = wait_fb(prev_wait, retry_wait)
-					handle_api_error(response)
-					#raise
-
-				#4.client error
-				when Net::HTTPClientError
-					# raise exception
-					#print_error_message(uri, response.message)
-					#raise Vexapion::HTTPClientException
-					handle_api_error(response)
-					#raise
-				
-				#5. other
-				else
-					fail Fatal.new(http_status_code, message)
-					#raise
-				end #of case
-
-			end #of retry
-			# error 
-			raise VexapionServerError
+			return response.body
 		end #of response
 
-		def wait_fb(prev_wait, retry_wait)
-			sleep retry_wait
-			retry_wait + prev_wait
-		end
-
-		def handle_api_error(response)
+		def handle_http_error(response)
 			http_status_code = response.code.to_i
 			message = "#{response.message} #{response.body}"
 
-			puts "http_status #{http_status_code}"
-
+			#2.server error
 			case http_status_code
-			when 400
-				fail InvalidRequestError.new(http_status_code, message)
+			when 500,502-504
+				fail RetryException.new(http_status_code, message)
 
-			when 401
-				fail AuthenticationError.new(http_status_code, message)
-
-			when 403
-				fail ForbiddenError.new(http_status_code, message)
-
-			when 404
-				fail NotFoundError.new(http_status_code, message)
-
-			when 408
-				fail RequestTimeout.new(http_status_code, message)
-
-			when 500
-				fail ServiceUnavailableError.new(http_status_code, message)
-
-			when 509
-				fail LimitExceededError.new(http_status_code, message)
-
+			#3.client error
+			when 400,401,403,404
+				fail Error.new(http_status_code, message)
+			
+			#4. other
 			else
 				#puts "http_client.rb: Error: #{http_status_code} #{message}"
 				fail Fatal.new(http_status_code, message)
@@ -162,6 +121,12 @@ module Vexapion
 			end #of case
 		end #of handle_api_error
 
+		def f_minus(a, b)
+			(BigDecimal(a.to_s) - BigDecimal(b.to_s)).to_f
+		end
+
 	end #of class
 
 end #of module Vexapion
+# :startdoc:
+

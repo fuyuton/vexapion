@@ -9,7 +9,7 @@ module Vexapion
 	# @see https://lightning.bitflyer.jp/docs?lang=ja&_ga=1.264432847.170149243.1463313992
 
 	class Bitflyer < BaseExchanges
-		
+# :stopdoc:		
 		def initialize(key = nil, secret = nil)
 			super(key, secret)
 
@@ -20,6 +20,7 @@ module Vexapion
 
 			@available_pair = ['BTC_JPY', 'FX_BTC_JPY', 'ETH_BTC']
 		end
+# :startdoc:
 
 # Public API
 		#板情報
@@ -460,7 +461,7 @@ module Vexapion
 				'ACCESS-SIGN'        =>  sign
 			}
 
-			request = Net::HTTP::Get.new(uri.request_uri, initheader = header)
+			request = Net::HTTP::Get.new(uri.request_uri, header)
 
 			do_command(uri, request)
 		end
@@ -474,7 +475,7 @@ module Vexapion
 			text = "#{timestamp}#{method}#{uri.request_uri}#{body}"
 			sign = signature(text)
 			header = headers(sign, timestamp)
-			request = Net::HTTP::Post.new(uri.request_uri, initheader = header)
+			request = Net::HTTP::Post.new(uri.request_uri, header)
 			request.body = body
 
 			res = do_command(uri, request)
@@ -488,12 +489,18 @@ module Vexapion
 		end
 
 		def headers(sign, timestamp)
-			headers = {
+			{
 				'ACCESS-KEY'        => @key,
 				'ACCESS-TIMESTAMP'  => timestamp,
 				'ACCESS-SIGN'       => sign,
 				'Content-Type'      => 'application/json'
 			}
+		end
+
+		def error_check(res)
+			if !res.nil? && res['success'] == 0 && res.has_key?('error')
+				fail Warning.new(0, res['error'])
+			end
 		end
 
 	end #of class

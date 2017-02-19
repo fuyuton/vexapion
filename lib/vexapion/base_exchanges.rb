@@ -5,7 +5,7 @@ module Vexapion
 	# Virtual (crypto) Currency Exchanges API wrapper class
 
 	class BaseExchanges
-
+# :stopdoc:			
 		def initialize(key = nil, secret = nil)
 			@key = key
 			@secret = secret
@@ -16,6 +16,11 @@ module Vexapion
 			set_min_interval(0.5)
 		end
 
+		def disconnect
+			@conn.terminate
+		end
+# :startdoc:
+
 		def set_min_interval(sec)
 			@conn.min_interval = sec
 		end
@@ -24,42 +29,24 @@ module Vexapion
 			@verify_mode = mode
 		end
 
+# :stopdoc:			
 		def do_command(uri, request)
-			response = nil
-			begin
+			#response = nil
+			#begin
 				response = @conn.http_request(uri, request, @verify_mode)
-			rescue VexapionRuntimeError => e
-				raise e
-			rescue HTTPError => e
-				raise e
-			end
+			#rescue VexapionRuntimeError => e
+			#	raise e
+			#rescue HTTPError => e
+			#	raise e
+			#end
 
 			response == '' ? '' : JSON.parse(response)
 		end
-			
+
 		def get_nonce
 			@nonce += 1
 		end
-
-		def error_check(res)
-			if res != nil && res != '' && res.kind_of?(Hash)
-				
-				if res['success'] == 0 || res['success'] == 'false'
-				  #polo
-					fail RequestFailed.new(
-						false, false, res)
-				elsif res.has_key?('error')
-				  #zaif, polo
-					fail RequestFailed.new(
-						false, res['error'], res)
-				elsif res.has_key?('error_message') 
-				  #bitflyer
-					fail RequestFailed.new(
-						false, "#{res['status']} #{res['error_message']}", res)
-				end
-			end
-
-		end
+# :startdoc:
 
 	end #of class
 

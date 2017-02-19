@@ -10,6 +10,7 @@ module Vexapion
 
 	class Coincheck < BaseExchanges
 
+# :stopdoc:
 		def initialize(key = nil, secret = nil)
 			super(key, secret)
 
@@ -17,6 +18,7 @@ module Vexapion
 			@private_url = "https://coincheck.com/api/"
 			set_verify_mode(OpenSSL::SSL::VERIFY_NONE)
 		end
+# :startdoc:
 
 # Public API
 
@@ -443,7 +445,7 @@ module Vexapion
 			message = "#{nonce}#{uri.to_s}#{params}"
 			sig = signature(message)
 			headers = header(nonce, sig)
-			request = Net::HTTP::Post.new(uri.request_uri, initheader = headers)
+			request = Net::HTTP::Post.new(uri.request_uri, headers)
 			request.body = params if params != ''
 
 			res = do_command(uri, request)
@@ -476,6 +478,12 @@ module Vexapion
 				'ACCESS-NONCE'      =>  nonce,
 				'ACCESS-SIGNATURE'  =>  signature
 			}
+		end
+
+		def error_check(res)
+			if !res.nil? && res['success'] == 0 && res.has_key?('error')
+				fail Warning.new(0, res['error'])
+			end
 		end
 
 	end #of class

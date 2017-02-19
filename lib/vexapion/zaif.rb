@@ -12,7 +12,7 @@ module Vexapion
 	# @see https://corp.zaif.jp/api-docs/
 
 	class Zaif < BaseExchanges
-
+# :stopdoc:
 		def initialize(key = nil, secret = nil)
 			super(key,secret)
 
@@ -25,6 +25,7 @@ module Vexapion
 			['btc_jpy', 'xem_jpy', 'xem_btc',
 				'mona_jpy', 'mona_btc', 'zaif_jpy', 'zaif_btc']
 		end
+# :startdoc:
 
 # Public API
 
@@ -244,13 +245,19 @@ module Vexapion
 			request['Sign'] = signature(request)
 
 			res = do_command(uri, request)
-			#error_check(res)
+			error_check(res)
 			res
 		end
 
 		def signature(req)
 			algo = OpenSSL::Digest.new('sha512')
 			OpenSSL::HMAC.hexdigest(algo, @secret, req.body)
+		end
+
+		def error_check(res)
+			if !res.nil? && res['success'] == 0 && res.has_key?('error')
+				fail Warning.new('0', res['error'])
+			end
 		end
 
 	end #of class

@@ -1,3 +1,4 @@
+# :stopdoc:
 # coding: utf-8
 
 # 新しい取引所を追加するときに利用するテンプレート
@@ -119,3 +120,5 @@ module Vexapion
 
 	end #of class
 end #of Vexapion module
+# :startdoc:
+
