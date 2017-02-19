@@ -28,25 +28,21 @@ Or install it yourself as:
 例:zaifの場合
 
 クラスファイルを読み込みます。
-
 ```ruby
 require 'vexapion/zaif'
 ```
 
 クラスの初期化をします。
-
 ```ruby
 zapi = Vexapion::Zaif.new(API鍵, 秘密鍵)
 ```
 
 扱いたいペアを指定します
-
 ```ruby
 pair = 'btc_jpy'
 ```
 
 tickerを取得します
-
 ```ruby
 tick = zapi.ticker(pair)
 ask = tick['ask']
@@ -54,8 +50,7 @@ bid = tick['bid']
 ```
 
 
-残高を取得します
-
+(すぐ売買に利用可能な)残高を取得します
 ```ruby
 res = zapi.balance
 balance = res['return']['funds']
@@ -66,7 +61,6 @@ btc_available = balance['btc']
  
 
 売買します
-
 ```ruby
 zapi.sell(pair, bid, amount)
 zapi.buy(pair, ask, amount)
