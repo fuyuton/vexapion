@@ -4,7 +4,7 @@ Vexapionは、仮想(暗号)通貨取引所のAPIを簡単に使えるように�
 
 現在ほぼ問題なく利用可能なのはCoincheck, Zaifのみです。
 
-Bitflyer, Poloniexも一応利用可能ですが、マージン取引、特殊取引などに関してはテストされていません。
+Bitflyer, Poloniexも一応利用可能ですが、マージン取引、特殊取引などに関連する関数はテストされていません。
 
 
 ## Installation
@@ -29,42 +29,48 @@ Or install it yourself as:
 
 クラスファイルを読み込みます。
 
+```ruby
 require 'vexapion/zaif'
+```
 
 クラスの初期化をします。
 
+```ruby
 zapi = Vexapion::Zaif.new(API鍵, 秘密鍵)
+```
 
 扱いたいペアを指定します
 
+```ruby
 pair = 'btc_jpy'
+```
 
 tickerを取得します
 
+```ruby
 tick = zapi.ticker(pair)
-
 ask = tick['ask']
-
 bid = tick['bid']
+```
 
 
 残高を取得します
 
+```ruby
 res = zapi.balance
-
 balance = res['return']['funds']
-
 jpy_available = balance['jpy']
-
 btc_available = balance['btc']
+```
 
-
+ 
 
 売買します
 
+```ruby
 zapi.sell(pair, bid, amount)
-
 zapi.buy(pair, ask, amount)
+```
 
 等のように使います。
 
@@ -81,17 +87,13 @@ Vexapionでは、その際のHTTPステータスなどを使っていくつか�
 
 大まかに分けて6つの例外があります。
 
-Vexapion::RequestFailed は、APIリクエストが失敗したことが明らかな場合に発生します。
+Vexapion::RetryException は、サーバー側にエラーが発生し、接続が出来ないまたは、リクエストが通ったかどうか定かでない状態になったときに発生します。
 
-Vexapion::SocketError は、HTTPでの接続が出来ないときに発生します。
-
-Vexapion::RetryException は、サーバー側にエラーが発生し、リクエストが通ったかどうか定かでない状態になったときに発生します。
-
-当初Vexapion側で自動的に再接続処理をする予定で付けていた名残でこの名前になっています。将来的に変更される可能性があります。
+当初Vexapion側で自動的に再接続処理をする予定で付けていた名残でRetryExceptionという名前になっています。将来的に変更される可能性があります。
 
 Vexapion::Warning は、場合によってはアプリ側で無視出来るかもしれないエラーになります。
 
-Vexapion::Error は、アプリ側で修正が必要なエラーになります。
+Vexapion::Error は、アプリ側またはVexapion自体の修正が必要なエラーになります。
 
 Vexapion::Fatal は、Vexapion自体の修正が必要なエラーになると思います。
 
