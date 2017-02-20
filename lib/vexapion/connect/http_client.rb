@@ -101,16 +101,17 @@ module Vexapion
 		end #of response
 
 		def handle_http_error(response)
+			server_error, client_error = [500, 502, 503, 504], [400, 401, 403, 404]
 			http_status_code = response.code.to_i
 			message = "#{response.message} #{response.body}"
 
 			#2.server error
 			case http_status_code
-			when 500,502-504
+			when *server_error
 				fail RetryException.new(http_status_code, message)
 
 			#3.client error
-			when 400,401,403,404
+			when *client_error
 				fail Error.new(http_status_code, message)
 			
 			#4. other
