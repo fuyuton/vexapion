@@ -87,12 +87,12 @@ module Vexapion
 				#STDERR.puts "\nAPI response time: #{@response_time}ms"
 
 			rescue SocketError, Net::OpenTimeout => e
-				fail RetryException.new('0', e.body)
+				fail RetryException.new('0', e.message)
 
 			rescue Net::ReadTimeout => e
 				http_status_code = 408
 				#message = "Timeout"
-				fail RetryException.new(http_status_code, e.body)
+				fail RetryException.new(http_status_code, e.message)
 			end
 			
 			handle_http_error(response) if response.code.to_i != 200
