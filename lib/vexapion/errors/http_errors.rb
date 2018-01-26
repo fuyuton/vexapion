@@ -1,14 +1,15 @@
-# :stopdoc:
 # coding: utf-8
 
 # based off of quandl gem: https://github.com/quandl/quandl-ruby
 
+# @author @fuyuton fuyuton@pastelpink.sakura.ne.jp
 module Vexapion
 
 	class HTTPError < StandardError
 		attr_reader :http_status_code
 		attr_reader :message
 
+		# @api private
 		def initialize(code = nil, msg = nil)
 			@http_status_code = code
 			@message = msg
@@ -32,5 +33,4 @@ module Vexapion
 	end
 
 end #of Vexapion module
-# :startdoc:
 

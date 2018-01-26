@@ -1,10 +1,10 @@
-# :stopdoc:
 # coding: utf-8
 
 # 新しい取引所を追加するときに利用するテンプレート
 
 require 'vexapion'
 
+#@author @fuyuton fuyuton@pastelpink.sakura.ne.jp
 module Vexapion
 
 	# ....のAPIラッパークラスです。
@@ -13,6 +13,7 @@ module Vexapion
 
 	class NewExchangesName < BaseExchanges
 
+		#@api private
 		def initialize(key = nil, secret = nil)
 			super(key,secret)
 
@@ -20,6 +21,7 @@ module Vexapion
 			@private_url = 'https://...'
 		end
 
+		#@api private
 		def available_pair
 		end
 
@@ -51,7 +53,7 @@ module Vexapion
 		#  @param [Float]    amount  注文量
 		#  @param [Float]    limit    リミット注文価格(ただしBTC_JPYの時はInteger)
 		# @return [Hash]
-		def trade(pair, action, price, amount, limit = '')
+		def trade(pair:, action:, price:, amount:, limit: '')
 			params = {
 				currency_pair: pair,
 				action:        action,
@@ -68,6 +70,7 @@ module Vexapion
 
 		private 
 		
+		#@api private
 		def get(method, pair)
 			url = "#{@public_url}#{method.downcase}/#{pair.downcase}"
 			uri = URI.parse url
@@ -76,6 +79,7 @@ module Vexapion
 			do_command(uri, request)
 		end
 
+		#@api private
 		def post(method, params = {})
 			uri = URI.parse @private_url
 			params['method'] = method
@@ -91,28 +95,31 @@ module Vexapion
 			res
 		end
 
+		#@api private
 		def delete(method)
 			nonce = get_nonce.to_s
 			uri = URI.parse "#{@private_url}#{method}"
 			message = "#{nonce}#{uri.to_s}"
 			sig = signature(message)
 			header = headers(nonce, sig)
-			request = Net::HTTP::Delete.new(uri.request_uri, headers)
+			request = Net::HTTP::Delete.new(uri.request_uri, header)
 
 			res = do_command(uri, request)
 			error_check(res) #TODO check require
 			res
 		end
 
+		#@api private
 		def signature(req)
 			algo = OpenSSL::Digest.new('sha512')
 			OpenSSL::HMAC.hexdigest(algo, @secret, req.body)
 		end
 
+		#@api private
 		def header(nonce, signature)
 			{
 				'Content-Type'	=> 'application/json',
-				'ACCESS-KEY'		=> '@key,
+				'ACCESS-KEY'		=> @key,
 				'ACCESS-NONCE'	=> nonce,
 				'ACCESS-SIGNATURE'	=> signature
 			}
@@ -120,5 +127,4 @@ module Vexapion
 
 	end #of class
 end #of Vexapion module
-# :startdoc:
 

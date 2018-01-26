@@ -1,8 +1,8 @@
 require 'vexapion/coincheck'
 require 'yaml'
 
-public = false
-priv = true
+public = true
+priv = false
 
 pair = 'btc_jpy'
 
@@ -15,14 +15,14 @@ begin
 
 if public == true
 
-			puts "api.ticker"
-			puts api.ticker
+			#puts "api.ticker"
+			#puts api.ticker
 
 			puts "api.trades"
 			puts api.trades
 
-			puts "api.order_books"
-			puts api.order_books
+			#puts "api.order_books"
+			#puts api.order_books
 
 end
 

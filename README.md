@@ -45,14 +45,15 @@ pair = 'btc_jpy'
 tickerを取得します
 ```ruby
 tick = zapi.ticker(pair)
-ask = tick['ask']
-bid = tick['bid']
+ask = tick['ask'].to_i
+bid = tick['bid'].to_i
+last = tick['last'].to_i
 ```
 
 
 (すぐ売買に利用可能な)残高を取得します
 ```ruby
-res = zapi.balance
+res = zapi.getinfo2
 balance = res['return']['funds']
 jpy_available = balance['jpy']
 btc_available = balance['btc']
@@ -62,8 +63,8 @@ btc_available = balance['btc']
 
 売買します
 ```ruby
-zapi.sell(pair, rate, amount)
-zapi.buy(pair, rate, amount)
+zapi.trade(pair, 'sell', rate, amount)
+zapi.trade(pair, 'buy', rate, amount)
 ```
 
 等のように使います。
@@ -73,7 +74,7 @@ zapi.buy(pair, rate, amount)
 また、各メソッドの返り値はAPIから返って来たものをHash化しただけになりますので、詳しくは http://vexapion.fuyuton.net にある各取引所のAPIドキュメントをご覧ください。
 
 
-例外。
+## 例外
 各メソッドはHTTPを使って取引所と通信をします。そのため接続できなかった場合などにエラーが返ってくることがあります。
 
 Vexapionには、4つの例外があります。
@@ -84,7 +85,7 @@ Vexapion::RetryException は、サーバー側にエラーが発生し、接続�
 
 Vexapion::Warning は、場合によってはアプリ側で無視出来るかもしれないエラーになります。
 
-Vexapion::Error は、アプリ側またはVexapion自体の修正が必要なエラーになります。
+Vexapion::Error は、アプリ側(稀にVexapion自体)の修正が必要なエラーになります。
 
 Vexapion::Fatal は、Vexapion自体の修正が必要なエラーになると思います。
 

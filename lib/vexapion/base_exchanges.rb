@@ -5,21 +5,35 @@ module Vexapion
 	# Virtual (crypto) Currency Exchanges API wrapper class
 
 	class BaseExchanges
-# :stopdoc:			
+		attr_reader	:response_time
+
+		#@api private
 		def initialize(key = nil, secret = nil)
 			@key = key
 			@secret = secret
 			@conn = HTTPClient.new
-			base_time = Time.gm(2017, 1, 1, 0, 0, 0).to_i
-			@nonce = (Time.now.to_i - base_time) * 100  #max 100req/s
+			base_time = Time.gm(2017, 9, 1, 0, 0, 0).to_i
+			@nonce = (Time.now.to_i*100 - base_time*100)  #max 100req/s
 			@verify_mode = nil
 			set_min_interval(0.5)
 		end
 
-		def disconnect
-			@conn.terminate
+		#@api private
+		def get_nonce
+			@nonce += 1
 		end
-# :startdoc:
+
+		def disconnect
+			begin 
+				@conn.terminate
+			rescue RetryException, Warning, Error => e
+				puts "disconnect Warn: #{e}"
+			end
+		end
+
+		def set_timeout(sec)
+			@conn.timeout = sec
+		end
 
 		def set_min_interval(sec)
 			@conn.min_interval = sec
@@ -29,24 +43,12 @@ module Vexapion
 			@verify_mode = mode
 		end
 
-# :stopdoc:			
 		def do_command(uri, request)
-			#response = nil
-			#begin
-				response = @conn.http_request(uri, request, @verify_mode)
-			#rescue VexapionRuntimeError => e
-			#	raise e
-			#rescue HTTPError => e
-			#	raise e
-			#end
+			response = @conn.http_request(uri, request, @verify_mode)
+			@response_time = @conn.response_time
 
 			response == '' ? '' : JSON.parse(response)
 		end
-
-		def get_nonce
-			@nonce += 1
-		end
-# :startdoc:
 
 	end #of class
 

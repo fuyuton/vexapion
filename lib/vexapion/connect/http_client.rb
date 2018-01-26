@@ -4,6 +4,7 @@
 require 'vexapion'
 require 'bigdecimal'
 
+# @author @fuyuton fuyuton@pastelpink.sakura.ne.jp
 module Vexapion
 
 	class HTTPClient
@@ -11,9 +12,10 @@ module Vexapion
 		attr_writer :timeout, :timeout_keepalive, :min_interval
 		attr_reader :response_time
 
+		# @api private
 		def initialize(i_sec=0.5, i_num=1)
 			@connections = {}
-			@timeout = 10
+			@timeout = 60
 			#以前のリクエストで使ったコネクションの再利用を許可する秒数
 			@timeout_keepalive = 300
 			@sleep_in_sec  = i_sec
@@ -22,18 +24,21 @@ module Vexapion
 			@last_access_time = Time.now.to_f
 		end
 		
+		# @api private
 		def disconnect
 			@connections.values.each do |connection|
 				connection.finish
 			end
 		end
 
+		# @api private
 		def terminate
 			@connections.values.each do |connection|
 				connection = nil
 			end
 		end
 
+		# @api private
 		def connection(uri, verify_mode)
 			key = uri.host + uri.port.to_s + (uri.scheme == 'https').to_s
 			if @connections[key].nil? || @connections[key].started?
@@ -42,6 +47,7 @@ module Vexapion
 			@connections[key]
 		end
 
+		# @api private
 		def build_http(uri, vmode)
 			http = Net::HTTP.new(uri.host, uri.port, nil, nil)
 			#http.set_debug_output($stderr)
@@ -66,6 +72,7 @@ module Vexapion
 		# @raise Error クライアントのエラー 400, 401, 403, 404
 		# @raise Fatal APIラッパーの修正が必要になると思われるエラー
 		# @return [String] request.bodyを返す
+		# @api private
 		def http_request(uri, request, verify_mode=nil)
 			#最低接続間隔の保証
 			now = Time.now.to_f
@@ -83,25 +90,30 @@ module Vexapion
 				http = connection(uri, verify_mode)
 				response = http.request(request)
 				t2 = Time.now.to_f
-				@response_time = f_minus(t2, t1).round(4)*1000
+				@response_time = f_minus(t2*1000, t1*1000).round(4)
 				#STDERR.puts "\nAPI response time: #{@response_time}ms"
 
-			rescue SocketError, Net::OpenTimeout => e
+			rescue SocketError, Net::OpenTimeout, Errno::ECONNRESET => e
 				fail RetryException.new('0', e.message)
 
 			rescue Net::ReadTimeout => e
 				http_status_code = 408
 				#message = "Timeout"
 				fail RetryException.new(http_status_code, e.message)
+			rescue OpenSSL::SSL::SSLError => e 
+				#fail RetryException.new('-1', e.message)
+				raise
 			end
+
 			
 			handle_http_error(response) if response.code.to_i != 200
 
 			return response.body
 		end #of response
 
+		# @api private
 		def handle_http_error(response)
-			server_error, client_error = [500, 502, 503, 504], [400, 401, 403, 404]
+			server_error, client_error = [500, 502, 503, 504], [400, 401, 403, 404, 422]
 			http_status_code = response.code.to_i
 			message = "#{response.message} #{response.body}"
 
@@ -122,6 +134,7 @@ module Vexapion
 			end #of case
 		end #of handle_api_error
 
+		# @api private
 		def f_minus(a, b)
 			(BigDecimal(a.to_s) - BigDecimal(b.to_s)).to_f
 		end

@@ -12,7 +12,7 @@ api = Vexapion::Bitflyer.new(key['access-key'], key['secret-key'])
 #api = Vexapion::Bitflyer.new
 
 public = true
-priv = true
+priv = false
 
 res = api.ticker(pair1)
 #puts res

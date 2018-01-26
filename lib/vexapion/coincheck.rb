@@ -2,6 +2,7 @@
 
 require 'vexapion'
 
+#@author @fuyuton fuyuton@pastelpink.sakura.ne.jp
 module Vexapion
 	
 	# coincheckのAPIラッパークラスです。
@@ -10,7 +11,7 @@ module Vexapion
 
 	class Coincheck < BaseExchanges
 
-# :stopdoc:
+		#@api private
 		def initialize(key = nil, secret = nil)
 			super(key, secret)
 
@@ -18,7 +19,6 @@ module Vexapion
 			@private_url = "https://coincheck.com/api/"
 			set_verify_mode(OpenSSL::SSL::VERIFY_NONE)
 		end
-# :startdoc:
 
 # Public API
 
@@ -35,10 +35,18 @@ module Vexapion
 			public_get('ticker')
 		end
 
-		# 取引履歴
+		# 全取引履歴
 		# @return [Array]
-		def trades
-			public_get('trades')
+		def trades(pair: "btc_jpy", limit: 1, order: nil, starting_after: nil, ending_before: nil)
+			params = {
+				pair: pair
+			}
+			params[:limit] = limit.to_i unless limit.nil?
+			params[:order] = order unless order.nil?
+			params[:starting_after] = starting_after unless starting_after.nil?
+			params[:ending_before] = ending_before unless ending_before.nil?
+
+			public_get('trades', params)
 		end
 
 		# 板情報
@@ -50,27 +58,29 @@ module Vexapion
 		# レート取得
 		# @param [String] pair  必須 現在は'btc_jpy'のみ
 		# @param [String] order_type  必須 'sell' or 'buy'
-		# @param [Integer]  price  省略可 注文での金額 例28000
-		# @param [Float]  amount  省略可 注文での量 例0.1
+		# @param [Integer] price  省略可 注文での金額 例28000
+		# @param [Float] amount  省略可 注文での量 例0.1
 		# @return [Hash]
-		def rate(pair, order_type, price='', amount='')
+		def rate(pair:, order_type:, price: nil, amount: nil)
 			params = {
 				'pair'        =>  pair.downcase,
-				'order_type'  =>  order_type,
+				'order_type'  =>  order_type
 			}
-			params['price'] = price if price != ''
-			params['amount'] = amount if amount != ''
+			params.merge!( price: price ) unless price.nil?
+			params.merge!( amount: amount ) unless amount.nil?
 
-			public_get('exchange/orders/rate')
+			public_get('exchange/orders/rate', params)
 		end
 	
 		# 販売所レート取得
 		# @param [String] pair  ('btc_jpy', 'eth_jpy', 'zec_btc' ...etc)
 		# @return [Hash]
-		def sales_rate(pair, price='', amount='')
+		def sales_rate(pair:, price: nil, amount: nil)
 			params = {
 				'pair' => pair.downcase,
 			}
+			params.merge!( price: price ) unless price.nil?
+			params.merge!( amount: amount ) unless amount.nil?
 
 			public_get('exchange/orders/rate', params)
 		end
@@ -96,14 +106,14 @@ module Vexapion
 		# @param [Float]  amount  注文での量 例0.1
 		# @param [Integer] stop_loss_rate 省略可 逆指値レート
 		# @return [Hash]
-		def order(pair, order_type, rate, amount, stop_loss_rate = '')
+		def order(pair:, order_type:, rate:, amount:, stop_loss_rate: nil)
 			params = {
 				'rate'        => rate,
 				'amount'      => amount,
 				'pair'        => pair.downcase,
 				'order_type'  => order_type.downcase
 			}
-			params['stop_loss_rate'] = stop_loss_rate if stop_loss_rate != ''
+			params['stop_loss_rate'] = stop_loss_rate unless stop_loss_rate.nil?
 
 			post('exchange/orders', params)
 		end
@@ -114,13 +124,13 @@ module Vexapion
 		# @param [Float]  amount_jpy  注文での量 例5000
 		# @param [Integer] stop_loss_rate 省略可 逆指値レート
 		# @return [Hash]
-		def market_buy(pair, amount_jpy, stop_loss_rate = '')
+		def market_buy(pair:, amount_jpy:, stop_loss_rate: nil)
 			params = {
 				'pair'       => pair.downcase,
 				'order_type' => "market_buy",
 				'market_buy_amount' => amount_jpy
 			}
-			params['stop_loss_rate'] = stop_loss_rate if stop_loss_rate != ''
+			params['stop_loss_rate'] = stop_loss_rate unless stop_loss_rate.nil?
 		
 			post('exchange/orders', params)
 		end
@@ -131,13 +141,13 @@ module Vexapion
 		# @param [Float]  amount  注文での量 例0.1
 		# @param [Integer] stop_loss_rate 省略可 逆指値レート
 		# @return [Hash]
-		def market_sell(pair, amount, stop_loss_rate = '')
+		def market_sell(pair:, amount:, stop_loss_rate: nil)
 			params = {
 				'pair'       => pair.downcase,
 				'order_type' => "market_sell",
 				'amount'     => amount
 			}
-			params['stop_loss_rate'] = stop_loss_rate if stop_loss_rate != ''
+			params['stop_loss_rate'] = stop_loss_rate unless stop_loss_rate.nil?
 
 			post('exchange/orders', params)
 		end
@@ -150,14 +160,14 @@ module Vexapion
 		# @param [Float]   amount  注文での量 例0.1
 		# @param [Integer] stop_loss_rate 省略可 逆指値レート
 		# @return [Hash]
-		def order_leverage(pair, order_type, rate, amount, stop_loss_rate = '')
+		def order_leverage(pair:, order_type:, rate:, amount:, stop_loss_rate: nil)
 			params = {
 				'pair'        => pair.downcase,
 				'rate'        => rate.to_f,
 				'amount'      => amount.to_f,
 				'order_type'  => "leverage_#{order_type.downcase}"
 			}
-			params['stop_loss_rate'] = stop_loss_rate if stop_loss_rate != ''
+			params['stop_loss_rate'] = stop_loss_rate unless stop_loss_rate.nil?
 
 			post('exchange/orders', params)
 		end
@@ -168,13 +178,13 @@ module Vexapion
 		# @param [Float]  amount  注文での量 例0.1
 		# @param [Integer] stop_loss_rate 省略可 逆指値レート
 		# @return [Hash]
-		def market_order_leverage(pair, order_type, amount, stop_loss_rate = '')
+		def market_order_leverage(pair:, order_type:, amount:, stop_loss_rate: nil)
 			params = {
 				'pair'        => pair.downcase,
 				'amount'      => amount.to_f,
 				'order_type'  => "leverage_#{order_type.downcase}"
 			}
-			params['stop_loss_rate'] = stop_loss_rate if stop_loss_rate != ''
+			params['stop_loss_rate'] = stop_loss_rate unless stop_loss_rate.nil?
 
 			post('exchange/orders', params)
 		end
@@ -186,7 +196,7 @@ module Vexapion
 		# @param [Integer]  rate  注文のレート 例28000
 		# @param [Float]  amount  注文での量 例0.1
 		# @return [Hash]
-		def close_position(pair, close_position, position_id, rate, amount)
+		def close_position(pair:, close_position:, position_id:, rate:, amount:)
 			params = {
 				'pair'        => pair.downcase,
 				'order_type'  => "close_#{close_position.downcase}",
@@ -204,7 +214,7 @@ module Vexapion
 		# @param [Integer]  position_id  ポジションID
 		# @param [Float]  amount  注文での量 例0.1
 		# @return [Hash]
-		def close_position_market_order(pair, close_position, position_id, amount)
+		def close_position_market_order(pair:, close_position:, position_id:, amount:)
 			params = {
 				'pair'        => pair.downcase,
 				'order_type'  => "close_#{close_position.downcase}",
@@ -226,7 +236,7 @@ module Vexapion
 		# 注文のキャンセル
 		# @param [Integer]  id  キャンセルしたい注文ID
 		# @return [Hash]
-		def cancel(id)
+		def cancel(id:)
 			delete("exchange/orders/#{id}")
 		end
 
@@ -238,16 +248,21 @@ module Vexapion
 
 		# 約定履歴(ページネーション)
 		# @return [Hash]
-		def transactions
-			get('exchange/orders/transactions_pagination')
+		def transactions_pagination(limit: nil, order: nil, starting_after: nil, ending_before: nil)
+			params[:limit] = limit unless limit.nil?
+			params[:order] = order unless order.nil?
+			params[:starting_after] = starting_after unless starting_after.nil?
+			params[:ending_before] = ending_before unless ending_before.nil?
+
+			get('exchange/orders/transactions_pagination', params)
 		end
 
 		# ポジション一覧
 		# @param [String]  status  省略可 'open'/'closed'を指定出来ます
 		# @return [Hash]
-		def position(status='')
+		def position(status: nil)
 			params = Hash.new
-			params['status'] = status  if status != ''  
+			params['status'] = status  unless status.nil?
 			get('exchange/leverage/positions', params)
 		end
 		
@@ -267,28 +282,28 @@ module Vexapion
 		# @param [String]  address  送り先のビットコインアドレス
 		# @param [Float]  amount  送りたいビットコインの量
 		# @return [Hash]
-		def send_money(address, amount)
+		def send_money(address:, amount:)
 			post('send_money', 'address' => address, 'amount' => amount)
 		end
 
 		# ビットコイン送金履歴
 		# @param [String] currency  現在はBTCのみ対応。省略時のデフォルトはBTC
 		# @return [Hash]
-		def send_history(currency = 'BTC')
+		def send_history(currency: 'BTC')
 			get('send_money', 'currency' =>  currency)
 		end
 
 		# ビットコイン受取履歴
 		# @param [String] currency  現在はBTCのみ対応。省略時のデフォルトはBTC
 		# @return [Hash]
-		def deposit_history(currency = 'BTC')
+		def deposit_history(currency: 'BTC')
 			get('deposit_money', 'currency' =>  currency)
 		end
 
 		# ビットコインの高速入金
 		# @param [Integer]  id  高速入金させたいビットコイン受取履歴のID
 		# @return [Hash]
-		def deposit_accelerate(id)
+		def deposit_accelerate(id:)
 			post("deposit_money/#{id}/fast")
 		end
 
@@ -310,16 +325,16 @@ module Vexapion
 		# 銀行口座の登録
 		# @param [String] bank  銀行名
 		# @param [String] branch 支店名
-		# @param [String] type 口座の種類 (普通口座 futsu / 当座預金口座 toza)
-		# @param [String] number_str 口座番号 例:'0123456'
+		# @param [String] bank_account_type 口座の種類 (普通口座 futsu / 当座預金口座 toza)
+		# @param [String] account_number_str 口座番号 例:'0123456'
 		# @param [String] name 口座名義
 		# @return [Hash]
-		def regist_bank_account(bank, branch, type, number_str, name)
+		def regist_bank_account(bank:, branch:, bank_account_type:, account_number_str:, name:)
 			params = {
 				'bank_name'         => bank,
 				'branch_name'       => branch,
-				'bank_account_type' => type,
-				'number'            => number_str,
+				'bank_account_type' => bank_account_type,
+				'number'            => account_number_str,
 				'name'              => name
 			}
 
@@ -329,7 +344,7 @@ module Vexapion
 		# 銀行口座の削除
 		# @param [Integer]  id  銀行口座一覧のID
 		# @return [Hash]
-		def delete_bank_account(id)
+		def delete_bank_account(id:)
 			delete("bank_accounts/#{id}")
 		end
 
@@ -345,7 +360,7 @@ module Vexapion
 		# @param [String] currency 通貨名 現在はJPYのみ。省略時デフォルト'JPY'
 		# @param [Boolean]  is_fast  高速出金オプション 省略時デフォルトはfalse
 		# @return [Hash]
-		def bank_withdraw(id, amount, currency = 'JPY', is_fast = false)
+		def bank_withdraw(id:, amount:, currency: 'JPY', is_fast: false)
 			params = {
 				'bank_account_id' => id,
 				'amount'   => amount,
@@ -359,7 +374,7 @@ module Vexapion
 		# 日本円出金申請のキャンセル
 		# @param [Integer]  id  出金申請のID
 		# @return [Hash]
-		def cancel_bank_withdraw(id)
+		def cancel_bank_withdraw(id:)
 			delete("withdraws/#{id}")
 		end
 
@@ -369,7 +384,7 @@ module Vexapion
 		# @param [String]  currency  借りたい通貨
 		# @param [Float] amount  借りたい量
 		# @return [Hash]
-		def borrow(currency, amount)
+		def borrow(currency:, amount:)
 			params = { 'amount' => amount, 'currency' => currency }
 
 			post('lending/borrows', params)
@@ -384,7 +399,7 @@ module Vexapion
 		# 返済
 		# @param [Integer]  id  借入中一覧のID
 		# @return [Hash]
-		def repayment(id)
+		def repayment(id:)
 			post("lending/borrows/#{id}/repay")
 		end
 
@@ -394,7 +409,7 @@ module Vexapion
 		# @param [String]  currency  通貨 現在はJPYのみ
 		# @param [Float] amount  移動する数量
 		# @return [Hash]
-		def to_leverage(currency, amount)
+		def to_leverage(currency:, amount:)
 			params = { 'currency' => currency, 'amount' => amount }
 
 			post('exchange/transfers/to_leverage', params)
@@ -404,7 +419,7 @@ module Vexapion
 		# @param [String]  currency  通貨 現在はJPYのみ
 		# @param [Float] amount  移動する数量
 		# @return [Hash]
-		def from_leverage(currency, amount)
+		def from_leverage(currency:, amount:)
 			params = { 'currency' => currency, 'amount' => amount }
 
 			post('exchange/transfers/from_leverage', params)
@@ -414,17 +429,22 @@ module Vexapion
 
 		private 
 
-		def public_get(method)
+		#@api private
+		def public_get(method, params = nil)
 			uri = URI.parse "#{@public_url}#{method}"
+			uri.query = URI.encode_www_form(params) unless params.nil?
 			request = Net::HTTP::Get.new(uri.request_uri)
 
-			do_command(uri, request)
+			res = do_command(uri, request)
+			error_check(res) #TODO check require
+			res
 		end
 
-		def get(method, params = '')
+		#@api private
+		def get(method, params = nil)
 			nonce = get_nonce.to_s
 			uri = URI.parse "#{@private_url}#{method}"
-			params = params.to_json  if params != '' #URI.encode_www_form(params)
+			params = params.to_json  unless params.nil? #URI.encode_www_form(params)
 
 			message = "#{nonce}#{uri.to_s}#{params}"
 			sig = signature(message)
@@ -437,7 +457,8 @@ module Vexapion
 			res
 		end
 
-		def post(method, params = '')
+		#@api private
+		def post(method, params = nil)
 			nonce = get_nonce.to_s
 			uri = URI.parse "#{@private_url}#{method}"
 			params = params.to_json  #URI.encode_www_form(params)
@@ -446,13 +467,14 @@ module Vexapion
 			sig = signature(message)
 			headers = header(nonce, sig)
 			request = Net::HTTP::Post.new(uri.request_uri, headers)
-			request.body = params if params != ''
+			request.body = params unless params.nil?
 
 			res = do_command(uri, request)
 			error_check(res) #check ok
 			res
 		end
 
+		#@api private
 		def delete(method)
 			nonce = get_nonce.to_s
 			uri = URI.parse "#{@private_url}#{method}"
@@ -466,11 +488,13 @@ module Vexapion
 			res
 		end
 
+		#@api private
 		def signature(message)
 			algo = OpenSSL::Digest.new('sha256')
 			OpenSSL::HMAC.hexdigest(algo, @secret, message)
 		end
 
+		#@api private
 		def header(nonce, signature)
 			{
 				'Content-Type'      =>  "application/json",
@@ -480,9 +504,10 @@ module Vexapion
 			}
 		end
 
+		#@api private
 		def error_check(res)
 			if !res.nil? && res['success'] == 0 && res.has_key?('error')
-				fail Warning.new(0, res['error'])
+				raise Warning.new(0, res['error'])
 			end
 		end
 
