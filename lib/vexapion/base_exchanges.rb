@@ -13,9 +13,9 @@ module Vexapion
 			@secret = secret
 			@conn = HTTPClient.new
 			base_time = Time.gm(2017, 9, 1, 0, 0, 0).to_i
-			@nonce = (Time.now.to_i*100 - base_time*100)  #max 100req/s
+			@nonce = (Time.now.to_i*50 - base_time*50)  #max 50req/s
 			@verify_mode = nil
-			set_min_interval(0.5)
+			set_min_interval(1)
 		end
 
 		#@api private
@@ -47,7 +47,11 @@ module Vexapion
 			response = @conn.http_request(uri, request, @verify_mode)
 			@response_time = @conn.response_time
 
-			response == '' ? '' : JSON.parse(response)
+			begin
+        response == '' ? '' : JSON.parse(response)
+      rescue => e
+        response
+      end
 		end
 
 	end #of class

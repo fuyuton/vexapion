@@ -1,3 +1,3 @@
 module Vexapion
-    VERSION = '1.0.0'
+    VERSION = '1.2.1'
 end

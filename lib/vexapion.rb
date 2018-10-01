@@ -15,7 +15,9 @@ require 'vexapion/zaif'
 require 'vexapion/bitflyer'
 require 'vexapion/coincheck'
 require 'vexapion/poloniex'
-#require 'vexapion/bittrex'
-#require 'vexapion/bitbankcc'
+require 'vexapion/bittrex'
+require 'vexapion/bitbankcc'
+require 'vexapion/binance'
+require 'vexapion/bitstamp'
 
 Net::HTTP.version_1_2

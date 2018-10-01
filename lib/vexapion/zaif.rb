@@ -4,6 +4,7 @@
 # 2017/1/21現在
 
 require 'vexapion'
+require 'bigdecimal'
 
 #@author @fuyuton fuyuton@pastelpink.sakura.ne.jp
 module Vexapion
@@ -282,7 +283,7 @@ module Vexapion
 		def post(method, params = {})
 			uri = URI.parse @private_url
 			params['method'] = method
-			params['nonce'] = get_nonce
+			params['nonce'] = (BigDecimal(get_nonce.to_s) / BigDecimal(100.to_s)).to_f
 
 			request = Net::HTTP::Post.new(uri)
 			request.set_form_data(params)  #クエリをURLエンコード (p1=v1&p2=v2...)
