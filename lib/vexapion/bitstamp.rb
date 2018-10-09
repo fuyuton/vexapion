@@ -4,6 +4,7 @@
 # 2018/2/21現在
 
 require 'vexapion'
+require 'json'
 
 #@author @fuyuton fuyuton@pastelpink.sakura.ne.jp
 module Vexapion
@@ -378,12 +379,11 @@ module Vexapion
       begin 
 			  res = do_command(uri, request)
       rescue Vexapion::HTTPError => e
-			  #error_check(res)
-		    p e.http_status_code
-		    p e.message
-        p e
-        #puts e.code
-        #puts e.reason
+		    #p e.http_status_code
+		    #p e.message
+        r = JSON.parse(e.body)
+        #puts JSON.pretty_generate(r)
+			  error_check(r)
       end
 			res
 		end
@@ -397,9 +397,8 @@ module Vexapion
 		#@api private
 		def error_check(res)
       #API Error
-      if res.is_a?(Hash) && res.has_key?('error')
-		    puts res.http_status_code
-		    p res.message
+      if res.is_a?(Hash) && res.has_key?('status') && res['status'] =~ /error/
+		    puts "error code: #{res['code']}, reason: #{res['reason']}"
       end
 			#if res.is_a?(Hash) && res.has_key?('error')
 			#	raise Warning.new('0', res['error'])
