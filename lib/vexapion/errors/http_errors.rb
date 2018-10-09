@@ -7,16 +7,17 @@ module Vexapion
 
 	class HTTPError < StandardError
 		attr_reader :http_status_code
-		attr_reader :message
+		attr_reader :message, :body
 
 		# @api private
-		def initialize(code = nil, msg = nil)
+		def initialize(code = nil, msg = nil, body = nil)
 			@http_status_code = code
 			@message = msg
+      @body = body
 		end
 
 		 def to_s
-			 "#{@http_status_code}: #{@message}"
+			 "#{@http_status_code} / #{@message} / #{@body}"
 		 end
 	end
 

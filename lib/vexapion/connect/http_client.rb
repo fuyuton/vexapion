@@ -115,23 +115,26 @@ module Vexapion
 		def handle_http_error(response)
 			server_error, client_error = [500, 502, 503, 504], [400, 401, 403, 404, 422]
 			http_status_code = response.code.to_i
-			message = "#{response.message} #{response.body}"
+			message = response.message
+      body = response.body
+
+      fail HTTPError.new(http_status_code, message, body)
 
 			#2.server error
-			case http_status_code
-			when *server_error
-				fail RetryException.new(http_status_code, message)
+			#case http_status_code
+			#when *server_error
+			#	fail RetryException.new(http_status_code, message)
 
 			#3.client error
-			when *client_error
-				fail Error.new(http_status_code, message)
+			#when *client_error
+			#	fail Error.new(http_status_code, message)
 			
 			#4. other
-			else
-				#puts "http_client.rb: Error: #{http_status_code} #{message}"
-				fail Fatal.new(http_status_code, message)
+			#else
+			#	#puts "http_client.rb: Error: #{http_status_code} #{message}"
+			#	fail Fatal.new(http_status_code, message)
 
-			end #of case
+			#end #of case
 		end #of handle_api_error
 
 		# @api private

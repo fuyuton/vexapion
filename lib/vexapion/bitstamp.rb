@@ -377,10 +377,13 @@ module Vexapion
 
       begin 
 			  res = do_command(uri, request)
-      rescue Vexapion::Error => e
+      rescue Vexapion::HTTPError => e
 			  #error_check(res)
-        puts e.code
-        puts e.reason
+		    p e.http_status_code
+		    p e.message
+        p e
+        #puts e.code
+        #puts e.reason
       end
 			res
 		end
@@ -395,8 +398,8 @@ module Vexapion
 		def error_check(res)
       #API Error
       if res.is_a?(Hash) && res.has_key?('error')
-        puts e.code
-        puts e.reason
+		    puts res.http_status_code
+		    p res.message
       end
 			#if res.is_a?(Hash) && res.has_key?('error')
 			#	raise Warning.new('0', res['error'])

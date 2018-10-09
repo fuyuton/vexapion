@@ -24,11 +24,13 @@ module Vexapion
 		end
 
 		def disconnect
+			puts "disconnecting..."
 			begin 
 				@conn.terminate
-			rescue RetryException, Warning, Error => e
-				puts "disconnect Warn: #{e}"
+			rescue HTTPError => e
+        puts "Error: #{e}"
 			end
+      puts 'complelte.'
 		end
 
 		def set_timeout(sec)
