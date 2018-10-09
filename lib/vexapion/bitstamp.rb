@@ -393,6 +393,11 @@ module Vexapion
 
 		#@api private
 		def error_check(res)
+      #API Error
+      if res.is_a?(Hash) && res.has_key?('error')
+        puts e.code
+        puts e.reason
+      end
 			#if res.is_a?(Hash) && res.has_key?('error')
 			#	raise Warning.new('0', res['error'])
 			#end
