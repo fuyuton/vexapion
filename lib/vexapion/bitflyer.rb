@@ -260,7 +260,7 @@ module Vexapion
 		#すべての注文をキャンセルする
 		# @param [String] product_code product_codeを指定します。
 		# @return [Hash]
-		def cancel_all_child_order(product_code:)
+		def cancel_all_child_orders(product_code:)
 			post('cancelallchildorders', product_code: product_code.upcase)
 		end
 
