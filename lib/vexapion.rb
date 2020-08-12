@@ -19,5 +19,6 @@ require 'vexapion/bittrex'
 require 'vexapion/bitbankcc'
 require 'vexapion/binance'
 require 'vexapion/bitstamp'
+require 'vexapion/decurret'
 
 Net::HTTP.version_1_2

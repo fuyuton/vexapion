@@ -16,9 +16,10 @@ module Vexapion
 			super(key, secret)
 
 			@public_url = 'https://bittrex.com/api/v1.1/public/'
-			@private_url = 'https://bittrex.com/api/v1.1/'
+			@market_url = 'https://bittrex.com/api/v1.1/market/'
+			@account_url = 'https://bittrex.com/api/v1.1/account/'
 
-			set_min_interval(0.5)
+			set_min_interval(1)
 
 			#@available_pair = ['BTC_JPY', 'FX_BTC_JPY', 'ETH_BTC']
 		end
@@ -37,7 +38,6 @@ module Vexapion
 		end
 
 		#ティッカー
-		# TODO marketがほんとに必須かチェック
 		# @param [String] market ペア
 		# @return [Hash]
 		def getticker(market:)
@@ -181,9 +181,9 @@ module Vexapion
 		#@api private
 		def public_get(command, params={})
 			uri = URI.parse "#{@public_url}#{command}"
-			#uri.query = URI.encode_www_form(params)
+			uri.query = URI.encode_www_form(params)
 			request = Net::HTTP::Get.new(uri.request_uri)
-			request.set_form_data(params) #クエリをURLエンコード(p1=v1&p2=v2...)
+			#request.set_form_data(params) #クエリをURLエンコード(p1=v1&p2=v2...)
 
 			do_command(uri, request)
 		end
@@ -195,7 +195,7 @@ module Vexapion
 			puts uri
 			query['apikey'] = @key
 			query['nonce']	= get_nonce.to_s
-			puts "query: #{query}"
+			#puts "query: #{query}"
 			uri.query = URI.encode_www_form(query)
 			text = "#{uri}"
 			sign = signature(text)
